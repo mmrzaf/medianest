@@ -1,0 +1,119 @@
+{
+    "id": "io.github.mmrzaf.MediaNest",
+    "runtime": "org.gnome.Platform",
+    "runtime-version": "48",
+    "sdk": "org.gnome.Sdk",
+    "sdk-extensions": [
+        "org.freedesktop.Sdk.Extension.rust-stable"
+    ],
+    "command": "medianest",
+    "finish-args": [
+        "--share=ipc",
+        "--socket=fallback-x11",
+        "--socket=wayland",
+        "--socket=pulseaudio",
+        "--device=dri",
+        "--share=network",
+        "--filesystem=home",
+        "--filesystem=/media",
+        "--filesystem=/run/media",
+        "--filesystem=/mnt",
+        "--filesystem=xdg-run/gvfsd",
+        "--talk-name=org.gtk.vfs.*",
+        "--talk-name=org.freedesktop.FileManager1"
+    ],
+    "build-options": {
+        "append-path": "/usr/lib/sdk/rust-stable/bin",
+        "env": {
+            "CARGO_HOME": "/run/build/medianest/cargo",
+            "CARGO_NET_OFFLINE": "true"
+        }
+    },
+    "cleanup": [
+        "/include",
+        "/lib/pkgconfig",
+        "/share/doc",
+        "/share/man",
+        "*.a",
+        "*.la"
+    ],
+    "modules": [
+        {
+            "name": "libde265",
+            "buildsystem": "cmake-ninja",
+            "config-opts": [
+                "-DCMAKE_BUILD_TYPE=Release",
+                "-DENABLE_SDL=OFF",
+                "-DENABLE_DECODER=OFF",
+                "-DENABLE_ENCODER=OFF"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://github.com/strukturag/libde265/releases/download/v1.0.15/libde265-1.0.15.tar.gz",
+                    "sha256": "00251986c29d34d3af7117ed05874950c875dd9292d016be29d3b3762666511d"
+                }
+            ]
+        },
+        {
+            "name": "libheif",
+            "buildsystem": "cmake-ninja",
+            "config-opts": [
+                "-DCMAKE_BUILD_TYPE=Release",
+                "-DWITH_EXAMPLES=OFF",
+                "-DWITH_GDK_PIXBUF=OFF",
+                "-DWITH_X265=OFF",
+                "-DWITH_AOM_ENCODER=OFF",
+                "-DWITH_DAV1D=ON",
+                "-DENABLE_PLUGIN_LOADING=OFF",
+                "-DBUILD_TESTING=OFF"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://github.com/strukturag/libheif/releases/download/v1.19.7/libheif-1.19.7.tar.gz",
+                    "sha256": "161c042d2102665fcee3ded851c78a0eb5f2d4bfe39fba48ba6e588fd6e964f3"
+                }
+            ]
+        },
+        {
+            "name": "ffmpeg",
+            "config-opts": [
+                "--disable-debug",
+                "--disable-doc",
+                "--disable-static",
+                "--enable-shared",
+                "--disable-ffplay",
+                "--disable-network",
+                "--disable-devices",
+                "--enable-gpl",
+                "--enable-libdav1d",
+                "--enable-libjxl"
+            ],
+            "cleanup": [
+                "/share/ffmpeg"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://ffmpeg.org/releases/ffmpeg-7.1.1.tar.xz",
+                    "sha256": "733984395e0dbbe5c046abda2dc49a5544e7e0e1e2366bba849222ae9e3a03b1"
+                }
+            ]
+        },
+        {
+            "name": "medianest",
+            "buildsystem": "simple",
+            "build-commands": [
+                "PREFIX=/app CARGO_TARGET_DIR=target sh scripts/install.sh"
+            ],
+            "sources": [
+                {
+                    "type": "dir",
+                    "path": ".."
+                },
+                "cargo-sources.json"
+            ]
+        }
+    ]
+}

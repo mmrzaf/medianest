@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=MediaNest
+GenericName=Photo Library
+Comment=Keep your photos and videos safe and organised
+Exec=medianest %U
+Icon=io.github.mmrzaf.MediaNest
+Terminal=false
+Categories=Graphics;Photography;GTK;GNOME;
+Keywords=photo;picture;image;video;library;album;gallery;import;camera;
+StartupNotify=true
+DBusActivatable=false
+SingleMainWindow=true
+X-GNOME-UsesNotifications=false

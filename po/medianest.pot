@@ -1,0 +1,2513 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the medianest package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: medianest 1.0.0\n"
+"Report-Msgid-Bugs-To: https://github.com/mmrzaf/medianest/issues\n"
+"POT-Creation-Date: 2026-10-11 18:05+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: data/io.github.mmrzaf.MediaNest.desktop:3
+msgid "MediaNest"
+msgstr ""
+
+#: data/io.github.mmrzaf.MediaNest.desktop:4
+#: crates/medianest-app/src/dialogs/new_library.rs:18
+msgid "Photo Library"
+msgstr ""
+
+#: data/io.github.mmrzaf.MediaNest.desktop:5
+msgid "Keep your photos and videos safe and organised"
+msgstr ""
+
+#: data/io.github.mmrzaf.MediaNest.desktop:10
+msgid "photo;picture;image;video;library;album;gallery;import;camera;"
+msgstr ""
+
+#: crates/medianest-app/src/actions.rs:27
+msgid "Could not change favorites"
+msgstr ""
+
+#: crates/medianest-app/src/actions.rs:33
+msgid "{} item added to Favorites"
+msgid_plural "{} items added to Favorites"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/actions.rs:39
+msgid "{} item removed from Favorites"
+msgid_plural "{} items removed from Favorites"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/actions.rs:57
+msgid "Could not change the rating"
+msgstr ""
+
+#: crates/medianest-app/src/actions.rs:70
+msgid "Could not rotate"
+msgstr ""
+
+#: crates/medianest-app/src/actions.rs:76
+msgid "{} item rotated"
+msgid_plural "{} items rotated"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/actions.rs:91
+msgid "Could not change visibility"
+msgstr ""
+
+#: crates/medianest-app/src/actions.rs:96
+msgid "{} item hidden. Search for “is:hidden” to see hidden items."
+msgid_plural "{} items hidden. Search for “is:hidden” to see hidden items."
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/actions.rs:101
+msgid "{} item shown again"
+msgid_plural "{} items shown again"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/actions.rs:135
+msgid "Delete {} Item From a Linked Folder?"
+msgid_plural "Delete {} Items From Linked Folders?"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/actions.rs:140
+msgid ""
+"These files live in folders MediaNest watches but does not manage. You can "
+"move                  the files to the system trash, or only remove them "
+"from the library and leave                  the files where they are."
+msgstr ""
+
+#: crates/medianest-app/src/actions.rs:146
+#: crates/medianest-app/src/context.rs:158
+#: crates/medianest-app/src/dialogs/date.rs:135
+#: crates/medianest-app/src/dialogs/export.rs:53
+#: crates/medianest-app/src/dialogs/new_library.rs:50
+#: crates/medianest-app/src/pages/albums.rs:533
+#: crates/medianest-app/src/pages/folders.rs:259
+#: crates/medianest-app/src/pages/tags.rs:192
+#: crates/medianest-app/src/pages/tags.rs:234
+#: crates/medianest-app/src/pages/timeline.rs:156
+msgid "_Cancel"
+msgstr ""
+
+#: crates/medianest-app/src/actions.rs:147
+#: crates/medianest-app/src/pages/timeline.rs:641
+msgid "_Remove From Library"
+msgstr ""
+
+#: crates/medianest-app/src/actions.rs:148
+msgid "_Move Files to Trash"
+msgstr ""
+
+#: crates/medianest-app/src/actions.rs:172
+msgid "Could not delete {}"
+msgstr ""
+
+#: crates/medianest-app/src/actions.rs:179
+msgid "{} item moved to the trash"
+msgid_plural "{} items moved to the trash"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/actions.rs:187
+msgid "{} item removed from the library"
+msgid_plural "{} items removed from the library"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/actions.rs:193
+msgid "Could not move to the trash"
+msgstr ""
+
+#: crates/medianest-app/src/actions.rs:204
+msgid "Could not restore {}"
+msgstr ""
+
+#: crates/medianest-app/src/actions.rs:208
+msgid "{} item restored"
+msgid_plural "{} items restored"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/actions.rs:214
+msgid "Could not restore"
+msgstr ""
+
+#: crates/medianest-app/src/actions.rs:224
+msgid "Remove {} Item From the Library?"
+msgid_plural "Remove {} Items From the Library?"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/actions.rs:225
+msgid ""
+"MediaNest will forget these items. Their files stay in the system trash "
+"until it is emptied."
+msgstr ""
+
+#: crates/medianest-app/src/actions.rs:226
+#: crates/medianest-app/src/pages/folders.rs:323
+msgid "_Remove"
+msgstr ""
+
+#: crates/medianest-app/src/actions.rs:232
+msgid "{} item removed"
+msgid_plural "{} items removed"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/actions.rs:233
+msgid "Could not remove"
+msgstr ""
+
+#: crates/medianest-app/src/actions.rs:250
+msgid "{} added to “{}”"
+msgstr ""
+
+#: crates/medianest-app/src/actions.rs:255
+msgid "Could not add to the album"
+msgstr ""
+
+#: crates/medianest-app/src/actions.rs:268
+msgid "Could not remove from the album"
+msgstr ""
+
+#: crates/medianest-app/src/actions.rs:275
+msgid "{} item removed from the album"
+msgid_plural "{} items removed from the album"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/actions.rs:299
+msgid "Album cover changed"
+msgstr ""
+
+#: crates/medianest-app/src/actions.rs:300
+msgid "Could not change the cover"
+msgstr ""
+
+#: crates/medianest-app/src/actions.rs:312
+#: crates/medianest-app/src/actions.rs:323
+msgid "Could not show the file"
+msgstr ""
+
+#: crates/medianest-app/src/actions.rs:336
+#: crates/medianest-app/src/actions.rs:344
+msgid "Could not open the file"
+msgstr ""
+
+#: crates/medianest-app/src/actions.rs:365
+msgid "The files are not available"
+msgstr ""
+
+#: crates/medianest-app/src/actions.rs:384
+msgid "{} file copied"
+msgid_plural "{} files copied"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/application.rs:158
+msgid ""
+"A calm home for your photos and videos. MediaNest keeps your originals "
+"safe,                  organises them by date, and never changes a file "
+"without a verified copy."
+msgstr ""
+
+#: crates/medianest-app/src/application.rs:164
+msgid "Place names"
+msgstr ""
+
+#: crates/medianest-app/src/application.rs:168
+#: crates/medianest-app/src/dialogs/preferences.rs:63
+msgid "Maps"
+msgstr ""
+
+#: crates/medianest-app/src/application.rs:176
+msgid ""
+"Offline place names are derived from GeoNames data, licensed under "
+"the                  Creative Commons Attribution 4.0 License."
+msgstr ""
+
+#: crates/medianest-app/src/context.rs:76
+msgid "The library was closed"
+msgstr ""
+
+#: crates/medianest-app/src/context.rs:104
+msgid "_Undo"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/albums.rs:17
+#: crates/medianest-app/src/pages/albums.rs:41
+#: crates/medianest-app/src/pages/albums.rs:504
+msgid "New Album"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/albums.rs:28
+msgid "Find an album"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/albums.rs:30
+#: crates/medianest-app/src/dialogs/shortcuts.rs:56
+#: crates/medianest-app/src/library_view.rs:76
+#: crates/medianest-app/src/pages/albums.rs:88
+#: crates/medianest-app/src/viewer/info.rs:105
+msgid "Albums"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/albums.rs:46
+msgid "Add {} Item to Album"
+msgid_plural "Add {} Items to Album"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/dialogs/albums.rs:72
+#: crates/medianest-app/src/pages/albums.rs:147
+msgid "Could not create the album"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/date.rs:59
+msgid "Time"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/date.rs:70
+msgid "Every selected item gets this date and time."
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/date.rs:85
+msgid "Days"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/date.rs:87
+msgid "Hours"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/date.rs:89
+msgid "Minutes"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/date.rs:95
+msgid ""
+"Moves every selected item by the same amount, keeping their order. Useful "
+"when a              camera's clock was set wrong or to another time zone."
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/date.rs:112
+msgid "Use the Date From the File"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/date.rs:114
+msgid "Undo manual changes and go back to the date read from each file."
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/date.rs:120
+msgid "Set"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/date.rs:121
+msgid "Shift"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/date.rs:122
+msgid "Reset"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/date.rs:130
+msgid "_Apply"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/date.rs:158
+msgid "Change Date of {} Item"
+msgid_plural "Change Date of {} Items"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/dialogs/date.rs:228
+msgid "Date changed"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/date.rs:229
+msgid "Could not change the date"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/date.rs:247
+msgid "{} date shifted"
+msgid_plural "{} dates shifted"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/dialogs/date.rs:258
+msgid "Could not shift the dates"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/date.rs:265
+msgid "Dates reset to the files’ own dates"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/date.rs:266
+msgid "Could not reset the dates"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/export.rs:22
+msgid "Destination"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/export.rs:30
+msgid "Organize by Date"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/export.rs:31
+msgid "Put files into Year/Month folders"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/export.rs:34
+msgid "Include Live Photo Videos"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/export.rs:39
+msgid ""
+"Originals are copied unchanged, with their metadata. Files with the same "
+"name are              never overwritten."
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/export.rs:48
+msgid "_Export"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/export.rs:74
+msgid "Export {} Item"
+msgid_plural "Export {} Items"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/dialogs/export.rs:84
+msgid "Export To"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:56
+#: crates/medianest-app/src/dialogs/import.rs:151
+#: crates/medianest-app/src/dialogs/shortcuts.rs:41
+msgid "Import"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:62
+msgid "Cameras, Phones and Cards"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:107
+msgid "Choose a Folder…"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:108
+msgid "Everything inside it, including subfolders"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:114
+msgid "Choose Files…"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:115
+msgid "Individual photos and videos"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:139
+msgid ""
+"MediaNest first looks at what you chose and shows what would happen. "
+"Nothing                  is copied until you confirm, and originals are "
+"never changed."
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:204
+msgid "Import Folders"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:211
+msgid "Import Files"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:213
+#: crates/medianest-app/src/pages/health.rs:137
+msgid "Photos and Videos"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:246
+msgid "Examined {} of {}"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:271
+msgid "Could not import"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:281
+msgid "Finding photos and videos…"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:296
+msgid "Looking at Your Files"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:303
+msgid "_Stop"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:322
+msgid "Looking…"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:356
+msgid "No Photos or Videos Found"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:358
+msgid "Already in Your Library"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:369
+msgid "There is nothing MediaNest can import in what you chose."
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:372
+msgid "Everything here has been imported before."
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:419
+msgid "{} item already in the library"
+msgid_plural "{} items already in the library"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/dialogs/import.rs:423
+msgid "Identical copies are recognised by their content and skipped."
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:429
+msgid "{} duplicate in this selection"
+msgid_plural "{} duplicates in this selection"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/dialogs/import.rs:433
+msgid "Only one copy of each is imported."
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:439
+msgid "{} item without a reliable date"
+msgid_plural "{} items without a reliable date"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/dialogs/import.rs:444
+msgid ""
+"They go to the “Unsorted” folder and appear in Review, where you can set the "
+"date."
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:451
+msgid "{} file could not be read"
+msgid_plural "{} files could not be read"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/dialogs/import.rs:455
+msgid "They may be damaged or still being written. They are left alone."
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:460
+msgid "{} other file"
+msgid_plural "{} other files"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/dialogs/import.rs:461
+msgid "Files that are not photos or videos are left alone."
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:476
+msgid "Copy"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:482
+msgid "Move"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:489
+msgid "Keep in Place"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:501
+msgid "How to Import"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:521
+msgid "_Choose Something Else"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:550
+msgid ""
+"Originals stay where they are. MediaNest keeps its own copy, checked byte "
+"for byte."
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:552
+msgid "_Import {} Item"
+msgid_plural "_Import {} Items"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/dialogs/import.rs:557
+msgid ""
+"Each original is copied and checked first. Removing the "
+"originals                              waits in Review until you approve it, "
+"so nothing is lost by mistake."
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:560
+msgid "_Move {} Item"
+msgid_plural "_Move {} Items"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/dialogs/import.rs:565
+msgid ""
+"Nothing is copied. The folder is watched and its photos appear in "
+"your                              library, but they are only available while "
+"the folder is."
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:568
+msgid "_Add Folder"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:603
+msgid "Ready to Import"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:638
+#: crates/medianest-app/src/pages/folders.rs:36
+msgid "Could not add the folder"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:644
+msgid "Import started. You can keep working while it runs."
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/new_library.rs:17
+#: crates/medianest-app/src/pages/albums.rs:516
+#: crates/medianest-app/src/pages/folders.rs:252
+#: crates/medianest-app/src/pages/tags.rs:185
+#: crates/medianest-app/src/viewer/info.rs:279
+msgid "Name"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/new_library.rs:21
+#: crates/medianest-app/src/viewer/info.rs:85
+msgid "Location"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/new_library.rs:30
+msgid ""
+"Photos and videos you import are copied into a “Media” folder inside the "
+"library,              sorted by year, month and day. Choose a disk with "
+"plenty of space."
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/new_library.rs:45
+#: crates/medianest-app/src/pages/albums.rs:534
+msgid "_Create"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/new_library.rs:74
+msgid "New Library"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/new_library.rs:95
+msgid "A library with this name already exists there."
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/new_library.rs:100
+msgid "The library will be created at {}"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/new_library.rs:106
+msgid "Enter a name without slashes."
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/new_library.rs:124
+msgid "Choose a Location"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:31
+#: crates/medianest-app/src/dialogs/shortcuts.rs:39
+msgid "General"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:36
+msgid "Starting"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:39
+msgid "Open the Last Library"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:40
+msgid "Skip the welcome screen on start"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:46
+#: crates/medianest-app/src/dialogs/shortcuts.rs:55
+#: crates/medianest-app/src/dialogs/shortcuts.rs:62
+#: crates/medianest-app/src/grid/imp.rs:140
+#: crates/medianest-app/src/library_view.rs:72
+msgid "Photos"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:48
+msgid "Square Tiles"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:49
+msgid "Crop photos to squares in the grid"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:53
+msgid "Start Videos Muted"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:56
+msgid "Slideshow Interval"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:57
+msgid "Seconds per photo"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:65
+msgid ""
+"Place names are always found offline. Map images are downloaded "
+"from              OpenStreetMap; turn this off to keep MediaNest completely "
+"offline."
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:70
+msgid "Show Online Maps"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:71
+msgid "Applies the next time the library is opened"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:100
+#: crates/medianest-app/src/library_view.rs:676
+#: crates/medianest-app/src/pages/folders.rs:65
+msgid "Library"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:105
+#: crates/medianest-app/src/pages/folders.rs:69
+msgid "Linked Folders"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:108
+msgid "Watch for Changes"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:109
+msgid "Notice new, changed and removed files right away"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:113
+msgid "Check New Files in the Background"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:114
+msgid "Find duplicates and prepare files for verification"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:122
+msgid "Safety"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:124
+msgid ""
+"MediaNest re-reads every file now and then to catch silent damage, and "
+"keeps              backups of its catalog inside the library folder."
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:129
+msgid "Verify Files Every"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:130
+msgid "Days; 0 turns it off"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:133
+msgid "Back Up the Catalog Every"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:134
+msgid "Hours; 0 turns it off"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:137
+msgid "Backups to Keep"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:146
+msgid "Storage"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:149
+msgid "Preview Cache Limit"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:150
+msgid "Megabytes for large previews used by the viewer"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:155
+msgid "Rebuild Thumbnails"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:190
+msgid "Rebuild All Thumbnails?"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:192
+msgid ""
+"Thumbnails are made again in the background. Photos show placeholders until "
+"then."
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:194
+msgid "_Rebuild"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:203
+msgid "Rebuilding {} thumbnails"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/preferences.rs:207
+msgid "Could not rebuild thumbnails"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:42
+#: crates/medianest-app/src/pages/timeline.rs:183
+msgid "Search"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:43
+msgid "Open library"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:44
+msgid "Undo"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:45
+msgid "Show or hide the sidebar"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:46
+msgid "Preferences"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:47
+msgid "Keyboard shortcuts"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:48
+msgid "Close window"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:49
+msgid "Quit"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:53
+msgid "Navigation"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:57
+#: crates/medianest-app/src/library_view.rs:78
+#: crates/medianest-app/src/pages/places.rs:163
+msgid "Places"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:58
+#: crates/medianest-app/src/library_view.rs:80
+#: crates/medianest-app/src/pages/review.rs:102
+msgid "Review"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:64
+msgid "Open"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:65
+msgid "Select or deselect"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:66
+msgid "Select all"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:67
+msgid "Extend the selection"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:68
+msgid "Stop selecting"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:69
+msgid "Larger tiles"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:70
+msgid "Smaller tiles"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:71
+#: crates/medianest-app/src/pages/timeline.rs:236
+msgid "Favorite"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:72
+#: crates/medianest-app/src/library_view.rs:77
+#: crates/medianest-app/src/pages/tags.rs:75
+#: crates/medianest-app/src/pages/timeline.rs:657
+#: crates/medianest-app/src/viewer/info.rs:101
+msgid "Tags"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:73
+#: crates/medianest-app/src/viewer/info.rs:69
+msgid "Rating"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:74
+msgid "Change date"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:75
+msgid "Rotate clockwise"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:76
+msgid "Rotate counterclockwise"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:77
+msgid "Hide"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:78
+msgid "Copy files"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:79
+#: crates/medianest-app/src/pages/timeline.rs:659
+msgid "Export"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:80
+msgid "Move to trash"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:81
+msgid "Show information"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:85
+msgid "Viewer"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:87
+#: crates/medianest-app/src/viewer/mod.rs:138
+msgid "Previous"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:88
+#: crates/medianest-app/src/viewer/mod.rs:139
+msgid "Next"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:89
+msgid "Zoom in"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:90
+msgid "Zoom out"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:91
+msgid "Best fit"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:92
+msgid "Original size"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:93
+#: crates/medianest-app/src/viewer/info.rs:122
+#: crates/medianest-app/src/viewer/mod.rs:219
+msgid "Information"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:94
+msgid "Play or pause"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:95
+msgid "Fullscreen"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:96
+msgid "Slideshow"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:97
+msgid "Back to the grid"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/shortcuts.rs:115
+msgid "Keyboard Shortcuts"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/tags.rs:23
+msgid "Add a tag…"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/tags.rs:25
+msgid "Add Tag"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/tags.rs:147
+msgid "{} ({} of {})"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/tags.rs:160
+#: crates/medianest-app/src/viewer/info.rs:382
+msgid "Remove Tag"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/tags.rs:175
+#: crates/medianest-app/src/viewer/info.rs:401
+msgid "Could not remove the tag"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/tags.rs:194
+#: crates/medianest-app/src/viewer/info.rs:214
+msgid "Could not add the tag"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/tags.rs:213
+msgid "No tags yet"
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/tags.rs:240
+msgid "Tags of {} Item"
+msgid_plural "Tags of {} Items"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/grid/imp.rs:218
+#: crates/medianest-app/src/grid/imp.rs:628
+#: crates/medianest-app/src/viewer/info.rs:255
+msgid "Unknown date"
+msgstr ""
+
+#: crates/medianest-app/src/grid/imp.rs:223
+#: crates/medianest-app/src/grid/imp.rs:630
+msgid "Video"
+msgstr ""
+
+#: crates/medianest-app/src/grid/imp.rs:228
+msgid "Live Photo"
+msgstr ""
+
+#: crates/medianest-app/src/grid/imp.rs:231
+msgid "The date may be wrong"
+msgstr ""
+
+#: crates/medianest-app/src/grid/imp.rs:234
+msgid "The file is missing"
+msgstr ""
+
+#: crates/medianest-app/src/grid/imp.rs:236
+msgid "The file changed on disk"
+msgstr ""
+
+#: crates/medianest-app/src/grid/imp.rs:516
+#: crates/medianest-app/src/grid/imp.rs:1368
+msgid "No date"
+msgstr ""
+
+#: crates/medianest-app/src/grid/imp.rs:633
+msgid "selected"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:73
+msgid "Favorites"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:74
+msgid "Videos"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:75
+msgid "Recently Added"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:79
+#: crates/medianest-app/src/pages/folders.rs:92
+#: crates/medianest-app/src/pages/folders.rs:413
+msgid "Folders"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:81
+#: crates/medianest-app/src/pages/health.rs:30
+msgid "Library Health"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:82
+msgid "Trash"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:105
+msgid "Collections"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:106
+msgid "Care"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:198
+#: crates/medianest-app/src/pages/timeline.rs:113
+msgid "_Import…"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:199
+msgid "_Add Folder…"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:202
+msgid "_New Library…"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:203
+msgid "_Open Library…"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:204
+msgid "_Close Library"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:207
+msgid "_Preferences"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:208
+#: crates/medianest-app/src/welcome.rs:34
+msgid "_Keyboard Shortcuts"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:209
+#: crates/medianest-app/src/welcome.rs:35
+msgid "_About MediaNest"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:215
+#: crates/medianest-app/src/welcome.rs:41
+msgid "Main Menu"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:220
+msgid "Import Photos and Videos"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:237
+msgid "Show Library Health"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:460
+msgid "No Photos Yet"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:462
+msgid "Import photos and videos from a camera, phone or folder to get started."
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:475
+msgid "No Favorites"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:477
+msgid "Mark photos with the heart button or press F to find them here."
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:490
+msgid "No Videos"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:491
+msgid "Videos you import appear here."
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:509
+msgid "Nothing Added Recently"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:510
+msgid "Items added in the last 30 days appear here."
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:526
+msgid "Trash Is Empty"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:528
+msgid ""
+"Deleted items move to the system trash. You can restore them from here until "
+"the trash is emptied."
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:549
+msgid "Show Sidebar"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:606
+msgid "something went wrong"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:653
+#: crates/medianest-app/src/pages/health.rs:143
+#: crates/medianest-app/src/pages/health.rs:153
+#: crates/medianest-app/src/pages/health.rs:277
+msgid "{} · {}"
+msgstr ""
+
+#: crates/medianest-app/src/library_view.rs:662
+msgid "{} item needs attention"
+msgid_plural "{} items need attention"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/pages/activity.rs:64
+msgid "Activity"
+msgstr ""
+
+#: crates/medianest-app/src/pages/activity.rs:75
+msgid "Show Activity"
+msgstr ""
+
+#: crates/medianest-app/src/pages/activity.rs:122
+msgid "{} (+{} more)"
+msgstr ""
+
+#: crates/medianest-app/src/pages/activity.rs:154
+msgid "Resume"
+msgstr ""
+
+#: crates/medianest-app/src/pages/activity.rs:154
+msgid "Pause"
+msgstr ""
+
+#: crates/medianest-app/src/pages/activity.rs:160
+msgid "Stop"
+msgstr ""
+
+#: crates/medianest-app/src/pages/activity.rs:177
+msgid "Paused"
+msgstr ""
+
+#: crates/medianest-app/src/pages/activity.rs:180
+msgid "Waiting…"
+msgstr ""
+
+#: crates/medianest-app/src/pages/activity.rs:185
+msgid "{} of {}"
+msgstr ""
+
+#: crates/medianest-app/src/pages/activity.rs:192
+msgid "about {} min left"
+msgstr ""
+
+#: crates/medianest-app/src/pages/activity.rs:194
+msgid "less than a minute left"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:36
+#: crates/medianest-app/src/pages/albums.rs:65
+msgid "_New Album…"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:37
+msgid "New _Smart Album…"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:73
+msgid "No Albums"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:75
+msgid ""
+"Albums collect photos you choose. Smart albums fill themselves from a "
+"search,                  such as “tag:family 2023”."
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:197
+msgid "Could not load albums"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:227
+msgid "Smart Album"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:294
+msgid "Empty Album"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:296
+msgid "Nothing matches this album’s search yet."
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:298
+msgid "Select photos anywhere and choose “Add to Album”."
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:309
+#: crates/medianest-app/src/pages/folders.rs:181
+#: crates/medianest-app/src/pages/tags.rs:136
+msgid "_Rename…"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:311
+msgid "Edit _Search…"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:314
+msgid "_Custom Order"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:315
+msgid "_Newest First"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:316
+msgid "_Oldest First"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:317
+msgid "Order"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:320
+msgid "_Delete Album…"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:325
+msgid "Album"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:354
+msgid "Could not rename the album"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:396
+msgid "Could not change the album"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:437
+msgid "Could not change the order"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:449
+msgid "Delete “{}”?"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:450
+msgid "Only the album is deleted. The photos stay in your library."
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:451
+#: crates/medianest-app/src/pages/tags.rs:262
+msgid "_Delete"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:461
+msgid "Could not delete the album"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:505
+msgid "New Smart Album"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:506
+msgid "Rename Album"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:507
+msgid "Edit Smart Album"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:510
+msgid ""
+"A smart album shows everything that matches its search, now and in the "
+"future."
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:521
+msgid "Search, e.g. tag:family place:Paris 2023"
+msgstr ""
+
+#: crates/medianest-app/src/pages/albums.rs:534
+msgid "_Save"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:23
+#: crates/medianest-app/src/pages/folders.rs:60
+msgid "Add a Folder"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:24
+msgid "_Add"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:35
+msgid "Folder added. Its photos appear as they are found."
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:66
+msgid "Imported photos and videos, managed by MediaNest."
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:71
+msgid ""
+"Folders shown in your library without being copied. MediaNest never "
+"changes                  files in them unless you delete a photo and choose "
+"to move it to the trash."
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:76
+#: crates/medianest-app/src/pages/timeline.rs:120
+msgid "_Add a Folder…"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:118
+msgid "Could not load folders"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:148
+msgid "not connected"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:150
+msgid "{} problem"
+msgid_plural "{} problems"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/pages/folders.rs:155
+msgid "checked {}"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:158
+msgid "Library Folder"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:179
+msgid "_Look for Changes"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:180
+msgid "_Watch for Changes"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:183
+msgid "_Moved to Another Place…"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:186
+#: crates/medianest-app/src/pages/timeline.rs:733
+#: crates/medianest-app/src/viewer/mod.rs:331
+msgid "Show in _Files"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:188
+msgid "Remove From _Library…"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:195
+msgid "Folder Actions"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:236
+msgid "Could not change watching"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:246
+msgid "Rename Folder"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:248
+msgid "The name is only used in MediaNest; the folder on disk keeps its name."
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:259
+#: crates/medianest-app/src/pages/tags.rs:192
+msgid "_Rename"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:271
+msgid "Could not rename"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:283
+msgid "Where Is the Folder Now?"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:296
+msgid "Checking the folder in its new place"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:297
+msgid "Could not use that folder"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:317
+msgid "Remove “{}” From the Library?"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:319
+msgid ""
+"{} found there will no longer be shown, with their tags and albums. "
+"The                      files themselves are not touched."
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:330
+msgid "Could not remove the folder"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:355
+msgid "Could not read the folder"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:375
+msgid "All Photos and Videos"
+msgstr ""
+
+#: crates/medianest-app/src/pages/folders.rs:403
+msgid "Empty Folder"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:68
+msgid "Could not check the library"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:97
+msgid "Your photos and videos are safe. MediaNest keeps checking them quietly."
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:99
+msgid "A few things need a look. Nothing has been changed or deleted."
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:105
+msgid "Needs Attention"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:133
+msgid "Contents"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:141
+msgid "In the Library Folder"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:145
+#: crates/medianest-app/src/pages/health.rs:155
+msgid "{} file"
+msgid_plural "{} files"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/pages/health.rs:151
+msgid "In Linked Folders"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:160
+msgid "With a Location"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:161
+msgid "Hidden"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:162
+msgid "In the Trash"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:176
+msgid "Checks"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:178
+msgid ""
+"Every file is read again now and then and compared with what was imported."
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:182
+msgid "Files Verified"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:184
+msgid "Oldest check {}"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:185
+#: crates/medianest-app/src/viewer/info.rs:437
+msgid "Not checked yet"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:189
+msgid "_Verify Now"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:200
+msgid "Catalog"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:202
+msgid "No problems found"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:209
+msgid "Video Support"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:211
+msgid "Available"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:213
+msgid "FFmpeg is not installed; videos are kept safe but show no thumbnails."
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:220
+msgid "Catalog Backups"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:222
+msgid ""
+"Backups keep your tags, albums, dates and other edits. Your photos "
+"themselves are                  files in the library folder; back that "
+"folder up with your usual backup tool."
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:230
+msgid "No backups yet"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:240
+msgid "_Restore…"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:251
+msgid "Restore This Backup?"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:253
+msgid ""
+"The library closes and reopens with the catalog from this backup. "
+"Changes                          made since then are lost, but the current "
+"catalog is saved first."
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:256
+#: crates/medianest-app/src/pages/timeline.rs:635
+#: crates/medianest-app/src/pages/timeline.rs:686
+#: crates/medianest-app/src/viewer/mod.rs:236
+msgid "_Restore"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:272
+msgid "Cache"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:275
+msgid "Thumbnails and Previews"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:290
+msgid "{} thumbnail could not be made"
+msgid_plural "{} thumbnails could not be made"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/pages/health.rs:296
+msgid "Try _Again"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:307
+msgid "Retrying {} thumbnail"
+msgid_plural "Retrying {} thumbnails"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/pages/health.rs:327
+msgid "{} linked folder"
+msgid_plural "{} linked folders"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/pages/health.rs:340
+msgid "_Back Up Now"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:351
+msgid "Catalog backed up"
+msgstr ""
+
+#: crates/medianest-app/src/pages/health.rs:352
+msgid "Could not back up"
+msgstr ""
+
+#: crates/medianest-app/src/pages/places.rs:77
+msgid "Countries"
+msgstr ""
+
+#: crates/medianest-app/src/pages/places.rs:85
+msgid "Cities"
+msgstr ""
+
+#: crates/medianest-app/src/pages/places.rs:123
+msgid "Maps Are Off"
+msgstr ""
+
+#: crates/medianest-app/src/pages/places.rs:124
+msgid ""
+"Turn on online maps in Preferences to see photos on a map. The list of "
+"places works offline."
+msgstr ""
+
+#: crates/medianest-app/src/pages/places.rs:137
+msgid "Show List"
+msgstr ""
+
+#: crates/medianest-app/src/pages/places.rs:148
+msgid "No Places Yet"
+msgstr ""
+
+#: crates/medianest-app/src/pages/places.rs:150
+msgid ""
+"Photos with a location appear here. Most phones record where a photo was "
+"taken."
+msgstr ""
+
+#: crates/medianest-app/src/pages/places.rs:238
+msgid "Could not load places"
+msgstr ""
+
+#: crates/medianest-app/src/pages/places.rs:249
+msgid "Unknown"
+msgstr ""
+
+#: crates/medianest-app/src/pages/places.rs:293
+msgid "No Photos Here"
+msgstr ""
+
+#: crates/medianest-app/src/pages/review.rs:27
+msgid ""
+"These have no reliable date, so they may appear on the wrong day. Set the "
+"date              and they move to the right place."
+msgstr ""
+
+#: crates/medianest-app/src/pages/review.rs:31
+msgid ""
+"These files were moved or deleted outside MediaNest, or their disk is not "
+"connected."
+msgstr ""
+
+#: crates/medianest-app/src/pages/review.rs:34
+msgid ""
+"The content of these files changed since they were checked. If you edited "
+"them on              purpose, use the new version. Otherwise the file may be "
+"damaged; restore it from a              backup."
+msgstr ""
+
+#: crates/medianest-app/src/pages/review.rs:39
+msgid "These could not be imported. Try again once the problem is fixed."
+msgstr ""
+
+#: crates/medianest-app/src/pages/review.rs:42
+msgid ""
+"These were moved into the library. Their copies are verified; approve "
+"removing the              originals, or keep them."
+msgstr ""
+
+#: crates/medianest-app/src/pages/review.rs:46
+msgid ""
+"MediaNest was stopped while working on these. Nothing was lost; check them "
+"again to finish."
+msgstr ""
+
+#: crates/medianest-app/src/pages/review.rs:49
+msgid "These files could not be read. They may be damaged or unsupported."
+msgstr ""
+
+#: crates/medianest-app/src/pages/review.rs:83
+msgid "All Clear"
+msgstr ""
+
+#: crates/medianest-app/src/pages/review.rs:84
+msgid "Nothing needs your attention."
+msgstr ""
+
+#: crates/medianest-app/src/pages/review.rs:87
+msgid "Find _Similar Photos"
+msgstr ""
+
+#: crates/medianest-app/src/pages/review.rs:152
+msgid "Could not load the review"
+msgstr ""
+
+#: crates/medianest-app/src/pages/review.rs:177
+msgid "{} item without a date"
+msgid_plural "{} items without a date"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/pages/review.rs:179
+msgid "No Date"
+msgstr ""
+
+#: crates/medianest-app/src/pages/review.rs:185
+msgid "{} item with a guessed date"
+msgid_plural "{} items with a guessed date"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/pages/review.rs:190
+msgid "Guessed Dates"
+msgstr ""
+
+#: crates/medianest-app/src/pages/review.rs:199
+msgid "{} for All"
+msgstr ""
+
+#: crates/medianest-app/src/pages/review.rs:218
+msgid "and {} more"
+msgid_plural "and {} more"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/pages/review.rs:231
+msgid "Tidy Up"
+msgstr ""
+
+#: crates/medianest-app/src/pages/review.rs:234
+#: crates/medianest-app/src/pages/similar.rs:90
+msgid "Similar Photos"
+msgstr ""
+
+#: crates/medianest-app/src/pages/review.rs:235
+msgid "Bursts, resized copies and near-duplicates"
+msgstr ""
+
+#: crates/medianest-app/src/pages/review.rs:273
+msgid "All Dated"
+msgstr ""
+
+#: crates/medianest-app/src/pages/review.rs:274
+msgid "Every item has a date now."
+msgstr ""
+
+#: crates/medianest-app/src/pages/review.rs:280
+msgid "Select items and press Ctrl+D to set their date"
+msgstr ""
+
+#: crates/medianest-app/src/pages/review.rs:335
+#: crates/medianest-app/src/pages/review.rs:382
+msgid "Could not do that"
+msgstr ""
+
+#: crates/medianest-app/src/pages/review.rs:343
+msgid "Dismiss"
+msgstr ""
+
+#: crates/medianest-app/src/pages/review.rs:365
+msgid "{} for All?"
+msgstr ""
+
+#: crates/medianest-app/src/pages/review.rs:377
+msgid "{} item done"
+msgid_plural "{} items done"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/pages/review.rs:379
+msgid "Some items could not be handled"
+msgstr ""
+
+#: crates/medianest-app/src/pages/similar.rs:38
+#: crates/medianest-app/src/pages/similar.rs:303
+msgid "_Trash Selected"
+msgstr ""
+
+#: crates/medianest-app/src/pages/similar.rs:60
+msgid "Comparing Photos…"
+msgstr ""
+
+#: crates/medianest-app/src/pages/similar.rs:142
+msgid "Could not compare photos"
+msgstr ""
+
+#: crates/medianest-app/src/pages/similar.rs:155
+msgid "No Similar Photos"
+msgstr ""
+
+#: crates/medianest-app/src/pages/similar.rs:157
+msgid "Nothing in your library looks like a near-duplicate."
+msgstr ""
+
+#: crates/medianest-app/src/pages/similar.rs:166
+msgid ""
+"{} group of similar photos. The best of each is kept; the others are "
+"selected for the trash. Showing the first 60."
+msgid_plural ""
+"{} groups of similar photos. The best of each is kept; the others are "
+"selected for the trash. Showing the first 60."
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/pages/similar.rs:172
+msgid ""
+"{} group of similar photos. The best of each is kept; the others are "
+"selected for the trash."
+msgid_plural ""
+"{} groups of similar photos. The best of each is kept; the others are "
+"selected for the trash."
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/pages/similar.rs:198
+#: crates/medianest-app/src/pages/timeline.rs:670
+#: crates/medianest-app/src/viewer/mod.rs:247
+msgid "Move to Trash"
+msgstr ""
+
+#: crates/medianest-app/src/pages/similar.rs:220
+msgid "Best"
+msgstr ""
+
+#: crates/medianest-app/src/pages/similar.rs:250
+msgid "_Not Similar"
+msgstr ""
+
+#: crates/medianest-app/src/pages/similar.rs:301
+msgid "_Trash {} Photo"
+msgid_plural "_Trash {} Photos"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/pages/tags.rs:34
+msgid "Filter tags"
+msgstr ""
+
+#: crates/medianest-app/src/pages/tags.rs:61
+msgid "No Tags"
+msgstr ""
+
+#: crates/medianest-app/src/pages/tags.rs:63
+msgid "Select photos and press T to tag them. Tags make photos easy to find."
+msgstr ""
+
+#: crates/medianest-app/src/pages/tags.rs:115
+msgid "Could not load tags"
+msgstr ""
+
+#: crates/medianest-app/src/pages/tags.rs:137
+msgid "_Merge Into…"
+msgstr ""
+
+#: crates/medianest-app/src/pages/tags.rs:138
+msgid "_Delete…"
+msgstr ""
+
+#: crates/medianest-app/src/pages/tags.rs:144
+msgid "Tag Actions"
+msgstr ""
+
+#: crates/medianest-app/src/pages/tags.rs:170
+msgid "Nothing Tagged"
+msgstr ""
+
+#: crates/medianest-app/src/pages/tags.rs:183
+msgid "Rename Tag"
+msgstr ""
+
+#: crates/medianest-app/src/pages/tags.rs:205
+msgid "Could not rename the tag"
+msgstr ""
+
+#: crates/medianest-app/src/pages/tags.rs:221
+msgid "Merge “{}” Into…"
+msgstr ""
+
+#: crates/medianest-app/src/pages/tags.rs:222
+msgid "Photos keep the other tag; this one is removed."
+msgstr ""
+
+#: crates/medianest-app/src/pages/tags.rs:227
+msgid "Tag"
+msgstr ""
+
+#: crates/medianest-app/src/pages/tags.rs:234
+msgid "_Merge"
+msgstr ""
+
+#: crates/medianest-app/src/pages/tags.rs:247
+msgid "Could not merge the tags"
+msgstr ""
+
+#: crates/medianest-app/src/pages/tags.rs:260
+msgid "Delete the Tag “{}”?"
+msgstr ""
+
+#: crates/medianest-app/src/pages/tags.rs:261
+msgid "The tag is removed from every photo. The photos stay in your library."
+msgstr ""
+
+#: crates/medianest-app/src/pages/tags.rs:268
+msgid "Could not delete the tag"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:162
+msgid "Select _All"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:173
+msgid "View Options"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:177
+#: crates/medianest-app/src/pages/timeline.rs:786
+msgid "Select Items"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:191
+msgid "Search tags, places, cameras, dates…"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:196
+msgid "Search Tips"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:654
+msgid "Add to Album"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:663
+#: crates/medianest-app/src/viewer/mod.rs:215
+msgid "More"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:676
+msgid "Remove From Album"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:688
+msgid "_Remove From Library…"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:695
+msgid "_Open"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:696
+msgid "_Favorite"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:697
+#: crates/medianest-app/src/viewer/mod.rs:314
+msgid "Add to _Album…"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:698
+#: crates/medianest-app/src/viewer/mod.rs:315
+msgid "_Tags…"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:702
+#: crates/medianest-app/src/viewer/mod.rs:311
+msgid "Rotate _Left"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:703
+#: crates/medianest-app/src/viewer/mod.rs:312
+msgid "Rotate _Right"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:704
+#: crates/medianest-app/src/viewer/mod.rs:313
+msgid "Change _Date…"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:706
+msgid "No Rating"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:713
+msgid "Rati_ng"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:715
+msgid "_Unhide"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:717
+#: crates/medianest-app/src/viewer/mod.rs:316
+msgid "_Hide"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:723
+#: crates/medianest-app/src/viewer/mod.rs:320
+msgid "Use as Album _Cover"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:725
+#: crates/medianest-app/src/viewer/mod.rs:322
+msgid "Re_move From Album"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:731
+#: crates/medianest-app/src/viewer/mod.rs:329
+msgid "_Copy"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:732
+#: crates/medianest-app/src/viewer/mod.rs:330
+msgid "_Export…"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:734
+#: crates/medianest-app/src/viewer/mod.rs:332
+msgid "Open _With…"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:738
+msgid "Move to _Trash"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:788
+msgid "{} Selected"
+msgid_plural "{} Selected"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/pages/timeline.rs:810
+#: crates/medianest-app/src/viewer/mod.rs:908
+msgid "Remove From Favorites"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:812
+#: crates/medianest-app/src/viewer/mod.rs:229
+#: crates/medianest-app/src/viewer/mod.rs:910
+msgid "Add to Favorites"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:843
+msgid "Could not load photos"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:865
+msgid "No Results"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:867
+msgid "Try other words, or remove a filter."
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:943
+msgid "Tag:"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:944
+msgid "Place:"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:945
+msgid "Album:"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:946
+msgid "Camera:"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:1040
+msgid "Zoom _In"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:1041
+msgid "Zoom _Out"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:1044
+msgid "_Square Tiles"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:1053
+msgid "Words in names, tags, places, cameras and captions"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:1055
+msgid "Items with a tag"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:1056
+msgid "Items in an album"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:1057
+msgid "Taken in a place"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:1058
+msgid "Taken in a year, month or day"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:1059
+msgid "Taken with a camera"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:1062
+msgid "Favorites, videos, Live Photos"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:1064
+msgid "Rated four stars or more"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:1067
+msgid "With a location; hidden items"
+msgstr ""
+
+#: crates/medianest-app/src/pages/timeline.rs:1069
+msgid "A leading minus excludes"
+msgstr ""
+
+#: crates/medianest-app/src/util.rs:59
+msgid "Today"
+msgstr ""
+
+#: crates/medianest-app/src/util.rs:60
+msgid "Yesterday"
+msgstr ""
+
+#: crates/medianest-app/src/util.rs:62
+msgid "%A, %-e %B"
+msgstr ""
+
+#: crates/medianest-app/src/util.rs:63
+msgid "%-e %B %Y"
+msgstr ""
+
+#: crates/medianest-app/src/util.rs:72
+msgid "%B %Y"
+msgstr ""
+
+#: crates/medianest-app/src/util.rs:83
+msgid "%A, %-e %B %Y at %H:%M"
+msgstr ""
+
+#: crates/medianest-app/src/util.rs:97
+msgid "%-e %b %Y"
+msgstr ""
+
+#: crates/medianest-app/src/util.rs:118
+msgid "just now"
+msgstr ""
+
+#: crates/medianest-app/src/util.rs:119
+msgid "{} minute ago"
+msgid_plural "{} minutes ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/util.rs:120
+msgid "{} hour ago"
+msgid_plural "{} hours ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/util.rs:121
+msgid "{} day ago"
+msgid_plural "{} days ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/util.rs:135
+msgid "No items"
+msgstr ""
+
+#: crates/medianest-app/src/util.rs:136 crates/medianest-app/src/util.rs:141
+msgid "{} photo"
+msgid_plural "{} photos"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/util.rs:137 crates/medianest-app/src/util.rs:142
+msgid "{} video"
+msgid_plural "{} videos"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/util.rs:139
+msgid "{} and {}"
+msgstr ""
+
+#: crates/medianest-app/src/util.rs:150
+msgid "{} item"
+msgid_plural "{} items"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/medianest-app/src/viewer/info.rs:46
+msgid "Caption"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/info.rs:50
+msgid "Date"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/info.rs:52
+msgid "Change Date"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/info.rs:64
+msgid "{} Stars"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/info.rs:77
+msgid "Details"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/info.rs:82
+#: crates/medianest-app/src/viewer/info.rs:364
+msgid "Place"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/info.rs:108
+msgid "Files"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/info.rs:183
+msgid "Could not save the caption"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/info.rs:269
+msgid "may be wrong"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/info.rs:289
+msgid "Size"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/info.rs:291
+msgid "Length"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/info.rs:294
+msgid "Camera"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/info.rs:297
+msgid "Lens"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/info.rs:326
+msgid "Exposure"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/info.rs:377
+msgid "Show Items Tagged “{}”"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/info.rs:428
+msgid "In the library"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/info.rs:429
+msgid "In “{}”"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/info.rs:435
+msgid "Verified {}"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/info.rs:436
+msgid "Verified"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/info.rs:438
+msgid "Missing — reconnect the disk or folder"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/info.rs:439
+msgid "Changed on disk — see Review"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/mod.rs:101
+msgid "Cannot Show This Item"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/mod.rs:143
+msgid "LIVE"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/mod.rs:146
+msgid "Play Live Photo"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/mod.rs:162
+msgid "Zoom Out"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/mod.rs:168
+msgid "Zoom In"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/mod.rs:174
+msgid "Best Fit"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/mod.rs:259
+msgid "Photo"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/mod.rs:306
+msgid "_Slideshow"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/mod.rs:307
+msgid "_Fullscreen"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/mod.rs:665
+msgid "Unknown Date"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/mod.rs:991
+msgid "Could not play the Live Photo"
+msgstr ""
+
+#: crates/medianest-app/src/viewer/mod.rs:1037
+msgid "Slideshow stopped"
+msgstr ""
+
+#: crates/medianest-app/src/welcome.rs:46
+msgid "_Create New Library"
+msgstr ""
+
+#: crates/medianest-app/src/welcome.rs:52
+msgid "_Open Existing Library…"
+msgstr ""
+
+#: crates/medianest-app/src/welcome.rs:66
+msgid "Recent Libraries"
+msgstr ""
+
+#: crates/medianest-app/src/welcome.rs:83
+msgid "Welcome to MediaNest"
+msgstr ""
+
+#: crates/medianest-app/src/welcome.rs:85
+msgid ""
+"A library keeps your photos and videos in one folder, organised by "
+"date.                  Your originals are copied and verified before "
+"anything else happens."
+msgstr ""
+
+#: crates/medianest-app/src/welcome.rs:151
+msgid "not available; is the disk connected?"
+msgstr ""
+
+#: crates/medianest-app/src/welcome.rs:165
+msgid "Remove From List"
+msgstr ""
+
+#: crates/medianest-app/src/window.rs:54 crates/medianest-app/src/window.rs:226
+msgid "Opening Library…"
+msgstr ""
+
+#: crates/medianest-app/src/window.rs:190
+msgid "Open Library"
+msgstr ""
+
+#: crates/medianest-app/src/window.rs:224
+msgid "Creating Library…"
+msgstr ""
+
+#: crates/medianest-app/src/window.rs:247
+msgid "Could Not Create Library"
+msgstr ""
+
+#: crates/medianest-app/src/window.rs:249
+msgid "Could Not Open Library"
+msgstr ""
+
+#: crates/medianest-app/src/window.rs:252
+msgid "_Close"
+msgstr ""
+
+#: crates/medianest-app/src/window.rs:267
+msgid "Opening the library failed unexpectedly"
+msgstr ""
+
+#: crates/medianest-app/src/window.rs:297
+msgid "{} — MediaNest"
+msgstr ""
+
+#: crates/medianest-app/src/window.rs:344
+msgid "Stop Work in Progress?"
+msgstr ""
+
+#: crates/medianest-app/src/window.rs:346
+msgid ""
+"{} is still running. Stopping is safe: finished items are kept and nothing "
+"is lost."
+msgstr ""
+
+#: crates/medianest-app/src/window.rs:349
+msgid "_Stop and Close"
+msgstr ""
+
+#: crates/medianest-app/src/window.rs:367
+msgid "Restoring Backup…"
+msgstr ""
+
+#: crates/medianest-app/src/window.rs:377
+msgid "Backup restored. The previous catalog was saved as {}"
+msgstr ""
+
+#: crates/medianest-app/src/window.rs:384
+msgid "Could not restore the backup: {}"
+msgstr ""

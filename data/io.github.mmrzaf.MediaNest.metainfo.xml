@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2026 mmrzaf -->
+<component type="desktop-application">
+  <id>io.github.mmrzaf.MediaNest</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>MediaNest</name>
+  <summary>Keep your photos and videos safe and organised</summary>
+  <developer id="io.github.mmrzaf">
+    <name>mmrzaf</name>
+  </developer>
+  <description>
+    <p>
+      MediaNest is a calm home for your photos and videos. It copies them from
+      cameras, phones and folders into one library on your disk, sorted by the
+      date they were taken, and checks every copy byte for byte before anything
+      else happens.
+    </p>
+    <ul>
+      <li>A fast timeline that stays smooth with hundreds of thousands of items</li>
+      <li>Albums, smart albums from a search, tags, ratings and favorites</li>
+      <li>Search by place, camera, tag, date or words, with suggestions</li>
+      <li>Places on a map, named offline</li>
+      <li>HEIC, AVIF, JPEG XL, RAW previews, videos and Live Photos</li>
+      <li>A review inbox for photos without a date, missing files and duplicates</li>
+      <li>Regular checks for silent damage, and backups of the catalog</li>
+      <li>Linked folders that are shown without being copied</li>
+    </ul>
+    <p>
+      Your originals are never modified. Edits such as dates, rotation and tags
+      live in the catalog and can be exported.
+    </p>
+  </description>
+  <launchable type="desktop-id">io.github.mmrzaf.MediaNest.desktop</launchable>
+  <url type="homepage">https://github.com/mmrzaf/medianest</url>
+  <url type="bugtracker">https://github.com/mmrzaf/medianest/issues</url>
+  <url type="vcs-browser">https://github.com/mmrzaf/medianest</url>
+  <screenshots>
+    <screenshot type="default">
+      <caption>The photo timeline</caption>
+      <image>https://raw.githubusercontent.com/mmrzaf/medianest/main/docs/screenshots/timeline.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Viewing a photo with its details</caption>
+      <image>https://raw.githubusercontent.com/mmrzaf/medianest/main/docs/screenshots/viewer.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Importing shows what will happen before anything is copied</caption>
+      <image>https://raw.githubusercontent.com/mmrzaf/medianest/main/docs/screenshots/import.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Places</caption>
+      <image>https://raw.githubusercontent.com/mmrzaf/medianest/main/docs/screenshots/places.png</image>
+    </screenshot>
+  </screenshots>
+  <content_rating type="oars-1.1"/>
+  <requires>
+    <display_length compare="ge">360</display_length>
+  </requires>
+  <supports>
+    <control>keyboard</control>
+    <control>pointing</control>
+    <control>touch</control>
+  </supports>
+  <branding>
+    <color type="primary" scheme_preference="light">#a8d8f0</color>
+    <color type="primary" scheme_preference="dark">#1c3b52</color>
+  </branding>
+  <releases>
+    <release version="1.0.0" date="2026-10-11">
+      <description>
+        <p>First release.</p>
+      </description>
+    </release>
+  </releases>
+</component>
