@@ -1640,15 +1640,20 @@ fn pair_live(transaction: &Transaction<'_>, asset: AssetId) -> Result<()> {
         if let Some((source, relpath)) = file {
             if let Some(stem_end) = relpath.iter().rposition(|byte| *byte == b'.') {
                 let stem = &relpath[..=stem_end];
+                // Paths starting with "IMG_1234." sort between "IMG_1234." and
+                // "IMG_1234/" ('/' follows '.'), so the path index finds them.
+                let mut upper = stem.to_vec();
+                if let Some(last) = upper.last_mut() {
+                    *last = b'/';
+                }
                 let mut statement = transaction.prepare_cached(
                     "SELECT a.id, a.duration_ms, f.relpath FROM files f JOIN assets a ON a.id = f.asset_id \
-                     WHERE f.source_id = ? AND substr(f.relpath, 1, ?) = ? AND a.kind != ? AND a.id != ?",
+                     WHERE f.source_id = ? AND f.relpath >= ? AND f.relpath < ? AND a.kind != ? AND a.id != ?",
                 )?;
                 let candidates: Vec<(i64, Option<i64>, Vec<u8>)> = statement
-                    .query_map(
-                        params![source, i64_of(stem.len() as u64), stem, kind, asset.get()],
-                        |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
-                    )?
+                    .query_map(params![source, stem, upper, kind, asset.get()], |row| {
+                        Ok((row.get(0)?, row.get(1)?, row.get(2)?))
+                    })?
                     .collect::<rusqlite::Result<_>>()?;
                 partner = candidates
                     .into_iter()
