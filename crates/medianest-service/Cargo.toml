@@ -1,0 +1,33 @@
+[package]
+name = "medianest-service"
+description = "The running library: sessions, jobs, thumbnails and maintenance"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+medianest-catalog.workspace = true
+medianest-core.workspace = true
+medianest-media.workspace = true
+medianest-vault.workspace = true
+async-channel.workspace = true
+chrono.workspace = true
+crossbeam-channel.workspace = true
+futures-channel.workspace = true
+image.workspace = true
+jpeg-decoder.workspace = true
+notify = { workspace = true }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+walkdir.workspace = true
+
+[dev-dependencies]
+image.workspace = true
+tempfile.workspace = true
+
+[lints]
+workspace = true

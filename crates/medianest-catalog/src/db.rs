@@ -805,7 +805,7 @@ impl Db {
     pub fn thumbnails_pending(&self, limit: u32) -> Result<Vec<ThumbnailWork>> {
         let mut statement = self.conn.prepare_cached(
             "SELECT id, uuid, format, orientation, motion_offset FROM assets WHERE thumb_state = 0 \
-             ORDER BY taken_local IS NULL, taken_local DESC LIMIT ?",
+             AND file_state != 3 AND trashed_ms IS NULL ORDER BY taken_local IS NULL, taken_local DESC LIMIT ?",
         )?;
         type Row = (i64, Vec<u8>, String, i64, Option<i64>);
         let rows: Vec<Row> = statement
