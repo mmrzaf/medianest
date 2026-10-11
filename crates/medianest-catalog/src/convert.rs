@@ -147,7 +147,7 @@ pub(crate) fn asset_from_row(row: &Row<'_>) -> rusqlite::Result<Asset> {
 
 /// Column list matching [`file_from_row`], for a table aliased `f`.
 pub(crate) const FILE_COLUMNS: &str = "f.id, f.asset_id, f.source_id, f.relpath, f.size, f.mtime_ns, \
-    f.ctime_ns, f.btime_ns, f.device, f.inode, f.status, f.hash, f.checked_ms, f.added_ms";
+    f.ctime_ns, f.btime_ns, f.device, f.inode, f.status, f.hash, f.checked_ms, f.added_ms, f.trash_path";
 
 pub(crate) fn file_from_row(row: &Row<'_>) -> rusqlite::Result<FileRecord> {
     Ok(FileRecord {
@@ -169,6 +169,7 @@ pub(crate) fn file_from_row(row: &Row<'_>) -> rusqlite::Result<FileRecord> {
         hash: hash32(row.get(11)?),
         checked_ms: row.get(12)?,
         added_ms: row.get(13)?,
+        trash_path: row.get::<_, Option<Vec<u8>>>(14)?.map(PathBytes::from_vec),
     })
 }
 

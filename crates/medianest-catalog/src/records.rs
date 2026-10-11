@@ -118,6 +118,8 @@ pub struct FileRecord {
     pub hash: Option<[u8; 32]>,
     pub checked_ms: Option<i64>,
     pub added_ms: i64,
+    /// Original location of a file moved to the system trash.
+    pub trash_path: Option<PathBytes>,
 }
 
 /// A file location joined with its source, ready to open.

@@ -216,10 +216,10 @@ impl Db {
     fn location_from_row(row: &Row<'_>) -> rusqlite::Result<FileLocation> {
         Ok(FileLocation {
             file: file_from_row(row)?,
-            source_kind: source_kind(14, row.get(14)?)?,
-            source_path: PathBytes::from_vec(row.get(15)?),
-            source_name: row.get(16)?,
-            source_status: source_status(17, row.get(17)?)?,
+            source_kind: source_kind(15, row.get(15)?)?,
+            source_path: PathBytes::from_vec(row.get(16)?),
+            source_name: row.get(17)?,
+            source_status: source_status(18, row.get(18)?)?,
         })
     }
 
@@ -289,7 +289,7 @@ impl Db {
         limit: u32,
     ) -> Result<Vec<FileLocation>> {
         let sql = Self::location_sql(
-            "WHERE f.status = ? AND f.id > ? AND s.status = 1 ORDER BY f.id LIMIT ?",
+            "WHERE f.status = ? AND f.id > ? AND s.status = 1 AND f.trash_path IS NULL ORDER BY f.id LIMIT ?",
         );
         let mut statement = self.conn.prepare_cached(&sql)?;
         let rows = statement.query_map(
@@ -308,7 +308,7 @@ impl Db {
         limit: u32,
     ) -> Result<Vec<FileLocation>> {
         let sql = Self::location_sql(
-            "WHERE f.id > ?1 AND f.status IN (1, 2, 4) AND s.status = 1 \
+            "WHERE f.id > ?1 AND f.status IN (1, 2, 4) AND s.status = 1 AND f.trash_path IS NULL \
              AND (?2 IS NULL OR s.kind = ?2) AND coalesce(f.checked_ms, 0) < ?3 \
              ORDER BY f.id LIMIT ?4",
         );

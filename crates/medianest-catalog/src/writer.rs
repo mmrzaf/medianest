@@ -272,6 +272,20 @@ impl Writer {
         Ok(added)
     }
 
+    /// Catalogs many files in one transaction. Used by folder scans.
+    pub fn add_files(
+        &mut self,
+        items: &[(NewFile<'_>, String, AssetMetadata)],
+    ) -> Result<Vec<Added>> {
+        let transaction = self.tx()?;
+        let mut added = Vec::with_capacity(items.len());
+        for (file, name, metadata) in items {
+            added.push(add_file_in(&transaction, file, name, metadata)?);
+        }
+        transaction.commit()?;
+        Ok(added)
+    }
+
     /// Records a new identity stamp after a rescan noticed a modified file.
     pub fn update_file_stamp(
         &mut self,

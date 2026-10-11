@@ -1,0 +1,29 @@
+[package]
+name = "medianest-vault"
+description = "Safe file operations for MediaNest libraries"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+medianest-catalog.workspace = true
+medianest-core.workspace = true
+medianest-media.workspace = true
+blake3.workspace = true
+chrono.workspace = true
+rustix.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+trash.workspace = true
+walkdir.workspace = true
+
+[dev-dependencies]
+image.workspace = true
+tempfile.workspace = true
+
+[lints]
+workspace = true
