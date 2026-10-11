@@ -93,6 +93,8 @@ impl std::fmt::Debug for Library {
     }
 }
 
+const SETTINGS_KEY: &str = "settings";
+
 fn lock<T>(mutex: &Mutex<T>) -> MutexGuard<'_, T> {
     mutex.lock().unwrap_or_else(PoisonError::into_inner)
 }
@@ -155,6 +157,11 @@ impl Library {
             }
         }
         let readers = Arc::new(readers::ReaderPool::new(layout.catalog()));
+        // Settings saved in the library win over the defaults passed in.
+        let settings = match readers.with(|db| db.meta(SETTINGS_KEY)) {
+            Ok(Some(saved)) => serde_json::from_str(&saved).unwrap_or(settings),
+            _ => settings,
+        };
         let events = Arc::new(EventBus::default());
         let cache = match cache_root {
             Some(root) => ThumbnailCache::with_root(root),
@@ -257,9 +264,15 @@ impl Library {
         lock(&self.inner.settings).clone()
     }
 
-    /// Applies new settings. Folder watching starts or stops accordingly.
+    /// Applies new settings and saves them in the library. Folder watching
+    /// starts or stops accordingly.
     pub fn set_settings(&self, settings: Settings) {
         let watch_changed = lock(&self.inner.settings).watch_folders != settings.watch_folders;
+        if let Ok(json) = serde_json::to_string(&settings) {
+            if let Err(error) = self.write(|writer| writer.set_meta(SETTINGS_KEY, &json)) {
+                tracing::warn!(%error, "could not save the library settings");
+            }
+        }
         *lock(&self.inner.settings) = settings;
         if watch_changed {
             self.start_watching();
@@ -404,6 +417,22 @@ impl Library {
             &self.inner.toolkit.decoder,
             &self.inner.toolkit.video,
         )?)
+    }
+
+    /// A photo at full resolution with its orientation applied, as RGBA
+    /// pixels: `(width, height, pixels)`. Used when zooming past the preview.
+    pub fn full_image(&self, id: AssetId) -> Result<(u32, u32, Vec<u8>)> {
+        let work = self
+            .read(|db| db.thumbnail_work(id))?
+            .ok_or_else(|| Error::Invalid("this photo's file is not available".into()))?;
+        let image = self.inner.toolkit.decoder.decode(
+            &work.path,
+            work.format,
+            work.orientation,
+            medianest_media::Size::Full,
+        )?;
+        let (width, height) = image.dimensions();
+        Ok((width, height, image.into_raw()))
     }
 
     /// The best available file of an asset: a present managed copy first.

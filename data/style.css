@@ -1,0 +1,163 @@
+/* MediaNest. Colors come from libadwaita's named colors so the light and
+   dark styles and the user's accent color are respected everywhere. */
+
+/* ----- grid ----------------------------------------------------------------- */
+
+photo-grid {
+  background-color: var(--view-bg-color);
+}
+
+photo-grid:focus-visible {
+  outline: none;
+}
+
+/* ----- sidebar -------------------------------------------------------------- */
+
+.sidebar-count {
+  font-feature-settings: "tnum";
+  opacity: 0.55;
+  font-size: 0.9em;
+}
+
+.review-count {
+  background-color: var(--accent-bg-color);
+  color: var(--accent-fg-color);
+  border-radius: 999px;
+  min-width: 18px;
+  padding: 0 6px;
+  font-size: 0.8em;
+  font-weight: 700;
+  opacity: 1;
+}
+
+.status-line {
+  font-size: 0.85em;
+  line-height: 1.3;
+}
+
+button.activity {
+  padding: 0;
+}
+
+/* ----- viewer --------------------------------------------------------------- */
+
+.viewer {
+  background-color: var(--view-bg-color);
+}
+
+.viewer.fullscreen {
+  background-color: black;
+}
+
+.viewer-overlay-button {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.viewer-zoom {
+  border-radius: 12px;
+  padding: 3px;
+}
+
+.live-badge {
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.8em;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.info-panel {
+  background-color: var(--sidebar-bg-color);
+}
+
+button.rating {
+  min-width: 26px;
+  min-height: 26px;
+  padding: 2px;
+}
+
+button.rating.filled {
+  color: var(--warning-color);
+}
+
+/* ----- chips and cards -------------------------------------------------------- */
+
+.tag-chip {
+  border-radius: 999px;
+  background-color: color-mix(in srgb, var(--accent-bg-color) 14%, transparent);
+}
+
+button.tag-chip {
+  padding: 2px 12px;
+  font-weight: 500;
+}
+
+.tag-chip button {
+  min-width: 22px;
+  min-height: 22px;
+  padding: 0;
+}
+
+button.album-card {
+  padding: 6px;
+  border-radius: 16px;
+}
+
+.album-badge {
+  min-width: 26px;
+  min-height: 26px;
+  padding: 4px;
+  border-radius: 999px;
+}
+
+/* ----- map ------------------------------------------------------------------ */
+
+button.map-marker-button {
+  padding: 0;
+  border-radius: 12px;
+  background: none;
+}
+
+thumb.map-marker {
+  border: 3px solid white;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px alpha(black, 0.35);
+}
+
+.map-count {
+  background-color: var(--accent-bg-color);
+  color: var(--accent-fg-color);
+  border-radius: 999px;
+  padding: 0 6px;
+  margin: -6px -6px 0 0;
+  font-size: 0.75em;
+  font-weight: 800;
+}
+
+/* ----- status --------------------------------------------------------------- */
+
+.health-good > scrolledwindow > viewport > box > image {
+  color: var(--success-color);
+}
+
+.health-warning > scrolledwindow > viewport > box > image {
+  color: var(--warning-color);
+}
+
+.keycap {
+  font-family: monospace;
+  font-size: 0.9em;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background-color: color-mix(in srgb, currentColor 8%, transparent);
+  box-shadow: inset 0 -2px color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.numeric {
+  font-feature-settings: "tnum";
+}
+
+.month-chart {
+  min-height: 72px;
+}

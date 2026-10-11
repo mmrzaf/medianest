@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/io/github/mmrzaf/MediaNest">
+    <file>style.css</file>
+    <file preprocess="xml-stripblanks">icons/scalable/actions/mn-check-badge-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/scalable/actions/mn-heart-filled-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/scalable/actions/mn-heart-outline-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/scalable/actions/mn-info-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/scalable/actions/mn-library-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/scalable/actions/mn-live-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/scalable/actions/mn-map-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/scalable/actions/mn-tag-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/scalable/apps/io.github.mmrzaf.MediaNest.svg</file>
+    <file preprocess="xml-stripblanks">icons/scalable/apps/io.github.mmrzaf.MediaNest-symbolic.svg</file>
+  </gresource>
+</gresources>

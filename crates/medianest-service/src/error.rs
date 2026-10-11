@@ -15,6 +15,8 @@ pub enum Error {
     Probe(#[from] medianest_media::ProbeError),
     #[error(transparent)]
     Thumbnail(#[from] medianest_media::ThumbnailError),
+    #[error(transparent)]
+    Decode(#[from] medianest_media::DecodeError),
     #[error("could not read or write {path}: {source}")]
     Io {
         path: String,

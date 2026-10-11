@@ -305,6 +305,8 @@ pub struct TimelineItem {
     pub color: u32,
     pub flags: u16,
     pub rating: u8,
+    /// Clockwise quarter turns chosen by the user, applied when drawing.
+    pub quarter_turns: u8,
     pub duration_ms: u32,
 }
 

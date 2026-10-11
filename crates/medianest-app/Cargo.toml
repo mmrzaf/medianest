@@ -1,0 +1,33 @@
+[package]
+name = "medianest-app"
+description = "MediaNest, a photo and video library for GNOME"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+build = "build.rs"
+
+[[bin]]
+name = "medianest"
+path = "src/main.rs"
+
+[dependencies]
+medianest-service.workspace = true
+adw = { package = "libadwaita", version = "0.8", features = ["v1_7"] }
+gtk = { package = "gtk4", version = "0.10", features = ["v4_18"] }
+shumate = { package = "libshumate", version = "0.7" }
+async-channel.workspace = true
+chrono.workspace = true
+gettext-rs = { version = "0.7", features = ["gettext-system"] }
+jpeg-decoder.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+[build-dependencies]
+glib-build-tools = "0.21"
+
+[lints]
+workspace = true

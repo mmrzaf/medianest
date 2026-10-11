@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#62a0ea"/>
+      <stop offset="1" stop-color="#c0bfe8"/>
+    </linearGradient>
+    <linearGradient id="nest" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c88800"/>
+      <stop offset="1" stop-color="#865e3c"/>
+    </linearGradient>
+    <linearGradient id="nestside" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#986a44"/>
+      <stop offset="1" stop-color="#63452c"/>
+    </linearGradient>
+    <clipPath id="photo">
+      <rect x="22" y="14" width="84" height="70" rx="8"/>
+    </clipPath>
+  </defs>
+  <!-- Back photo, tilted -->
+  <g transform="rotate(-9 64 52)">
+    <rect x="24" y="16" width="80" height="66" rx="8" fill="#f6f5f4"/>
+    <rect x="24" y="16" width="80" height="66" rx="8" fill="none" stroke="#c0bfbc" stroke-width="2"/>
+  </g>
+  <!-- Front photo -->
+  <g transform="rotate(6 64 52)">
+    <rect x="18" y="10" width="92" height="78" rx="10" fill="#ffffff"/>
+    <g clip-path="url(#photo)">
+      <rect x="22" y="14" width="84" height="70" fill="url(#sky)"/>
+      <circle cx="82" cy="34" r="9" fill="#f9f06b"/>
+      <path d="M22 70 L44 46 L58 60 L70 50 L106 78 L106 84 L22 84 Z" fill="#26a269"/>
+      <path d="M22 84 L22 74 L40 62 L60 76 L84 64 L106 80 L106 84 Z" fill="#2ec27e"/>
+    </g>
+  </g>
+  <!-- Nest -->
+  <path d="M10 80 C 14 104, 40 116, 64 116 C 88 116, 114 104, 118 80 Z" fill="url(#nestside)"/>
+  <path d="M8 78 C 8 72, 120 72, 120 78 C 120 86, 8 86, 8 78 Z" fill="url(#nest)"/>
+  <g fill="none" stroke="#f5c211" stroke-width="2.4" stroke-linecap="round" opacity="0.85">
+    <path d="M14 82 C 34 88, 52 84, 70 90 C 86 95, 100 88, 114 86"/>
+    <path d="M18 92 C 36 98, 58 92, 78 100 C 92 104, 104 98, 110 94"/>
+    <path d="M28 103 C 44 108, 64 103, 82 108 C 92 110, 98 106, 102 104"/>
+  </g>
+  <g fill="none" stroke="#63452c" stroke-width="1.6" stroke-linecap="round" opacity="0.6">
+    <path d="M20 86 C 40 94, 60 86, 96 96"/>
+    <path d="M30 98 C 50 104, 70 96, 100 100"/>
+  </g>
+</svg>

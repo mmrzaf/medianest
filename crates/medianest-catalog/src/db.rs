@@ -402,6 +402,7 @@ impl Db {
                 color: row.get::<_, Option<i64>>(7)?.unwrap_or(0) as u32,
                 flags: item_flags,
                 rating: u8::try_from(row.get::<_, i64>(17)?).unwrap_or(0),
+                quarter_turns: u8::try_from(rotation.rem_euclid(360) / 90).unwrap_or(0),
                 duration_ms: row
                     .get::<_, Option<i64>>(18)?
                     .and_then(|value| u32::try_from(value).ok())
