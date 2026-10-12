@@ -30,9 +30,18 @@ Then choose how to import:
 
 - **Copy** keeps the originals where they are. Use this for memory cards you
   will format in the camera, and whenever in doubt.
-- **Move** copies and checks each file, then removes its original right
-  away, so you never need room for two copies of the whole import. An
-  original that changed in the meantime is kept and listed in **Review**.
+- **Move** puts each file into the library and removes its original right
+  away, so you never need room for two copies of the whole import. On the
+  same disk as the library a move is just a rename: nothing is copied and no
+  extra space is needed. Otherwise the file is copied, checked, and then its
+  original is removed. An original that changed in the meantime is kept and
+  listed in **Review**.
+
+MediaNest checks the free space before importing and tells you when the
+library's disk is too full (it keeps 512 MB free for the catalog and
+thumbnails). If the disk fills up anyway, the import stops with one message
+instead of failing every remaining file; free some space and import again to
+continue where it stopped.
 - **Keep in Place** does not copy anything: the folder is linked and
   watched, and its photos appear in your library while the folder is
   available.
