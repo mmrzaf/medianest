@@ -536,6 +536,103 @@ fn recovery_after_a_crash_at_any_checkpoint_keeps_the_invariant() {
     );
 }
 
+/// Crashes a copy at `checkpoint` and rewrites its journal row the way
+/// version 1.0.0 would have left it, in `state`.
+fn crash_with_legacy_state(
+    lib: &Library,
+    original: &Path,
+    checkpoint: Checkpoint,
+    state: OperationState,
+) {
+    let metadata = lib.toolkit.probe(original).expect("probe");
+    let crashing = Vault {
+        layout: &lib.layout,
+        catalog: &lib.writer,
+        faults: &CrashAt(checkpoint),
+    };
+    crashing
+        .import_file(original, &metadata, ImportMode::Copy, None, &Control::new())
+        .expect_err("crash");
+    let mut writer = lib.writer.lock().unwrap();
+    // A copy that reached the catalog is already completed in the new journal.
+    let mut operation = [
+        OperationState::Planned,
+        OperationState::Verified,
+        OperationState::Completed,
+    ]
+    .into_iter()
+    .find_map(|state| {
+        writer
+            .operations_in_state(state)
+            .expect("ops")
+            .into_iter()
+            .next()
+    })
+    .expect("the interrupted operation");
+    operation.state = state;
+    writer.save_operation(&operation).expect("save");
+}
+
+#[test]
+fn journals_written_by_1_0_0_still_recover() {
+    // Interrupted while writing the temporary copy: rolled back, original intact.
+    let lib = Library::new();
+    let original = lib.photo("legacy-a.png", 21);
+    crash_with_legacy_state(
+        &lib,
+        &original,
+        Checkpoint::AfterTempCreated,
+        OperationState::Copying,
+    );
+    let report = lib.vault().recover(&lib.probe_fn()).expect("recover");
+    assert_eq!(report.rolled_back, 1);
+    assert!(original.exists());
+    assert!(lib.managed_files().is_empty(), "the temporary copy is gone");
+
+    // Renamed into place but not yet catalogued.
+    let lib = Library::new();
+    let original = lib.photo("legacy-b.png", 22);
+    crash_with_legacy_state(
+        &lib,
+        &original,
+        Checkpoint::AfterInstall,
+        OperationState::Installed,
+    );
+    let report = lib.vault().recover(&lib.probe_fn()).expect("recover");
+    assert_eq!(report.completed, 1);
+    assert_eq!(lib.managed_files().len(), 1);
+    assert_eq!(
+        lib.writer
+            .lock()
+            .unwrap()
+            .stats()
+            .expect("stats")
+            .managed_files,
+        1
+    );
+
+    // Catalogued but never marked completed.
+    let lib = Library::new();
+    let original = lib.photo("legacy-c.png", 23);
+    crash_with_legacy_state(
+        &lib,
+        &original,
+        Checkpoint::AfterCatalogued,
+        OperationState::Catalogued,
+    );
+    let report = lib.vault().recover(&lib.probe_fn()).expect("recover");
+    assert_eq!(report.completed, 1);
+    assert!(original.exists(), "a copy never touches its original");
+    assert!(
+        lib.writer
+            .lock()
+            .unwrap()
+            .unfinished_operations()
+            .expect("ops")
+            .is_empty()
+    );
+}
+
 #[test]
 fn recovery_finishes_a_removal_interrupted_after_the_rename() {
     let lib = Library::new();
