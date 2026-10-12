@@ -21,6 +21,7 @@ use medianest_service::core::AssetId;
 pub(crate) use imp::draw_texture as draw_cover;
 pub use scrubber::Scrubber;
 
+use crate::filmstrips::Filmstrips;
 use crate::textures::ThumbnailLoader;
 
 /// Tile sizes of the zoom levels, in logical pixels.
@@ -49,9 +50,10 @@ pub enum Sections {
 
 impl PhotoGrid {
     #[must_use]
-    pub fn new(loader: Rc<ThumbnailLoader>) -> Self {
+    pub fn new(loader: Rc<ThumbnailLoader>, filmstrips: Rc<Filmstrips>) -> Self {
         let grid: Self = glib::Object::new();
         grid.imp().set_loader(loader);
+        grid.imp().set_filmstrips(filmstrips);
         grid
     }
 

@@ -574,7 +574,10 @@ impl LibraryView {
 
     fn handle(self: &Rc<Self>, event: &Event) {
         match event {
-            Event::ThumbnailReady(_, uuid) => self.ctx.loader.thumbnail_ready(*uuid),
+            Event::ThumbnailReady(_, uuid) => {
+                self.ctx.filmstrips.forget(*uuid);
+                self.ctx.loader.thumbnail_ready(*uuid);
+            }
             Event::ThumbnailFailed(id) => self.ctx.loader.thumbnail_failed(*id),
             Event::Job(job) => {
                 self.activity.update(job);

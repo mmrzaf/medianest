@@ -13,6 +13,7 @@ use medianest_service::core::AssetId;
 
 use super::layout::{Cell as LayoutCell, Grouping, Layout, Params, Rect, RowKind};
 use super::{Sections, ZOOM_SIZES};
+use crate::filmstrips::{Filmstrips, Frames};
 use crate::i18n::tr;
 use crate::textures::ThumbnailLoader;
 use crate::util;
@@ -23,6 +24,11 @@ type DragFiles = Box<dyn Fn(&[AssetId]) -> Vec<PathBuf>>;
 const BAND_THRESHOLD: f64 = 6.0;
 const HEADER_HEIGHT: f32 = 52.0;
 const CHECK_SIZE: f32 = 24.0;
+/// How long the pointer rests on a video before its filmstrip is fetched.
+const PREVIEW_DELAY_MS: u32 = 250;
+/// Narrowest tile that shows a filmstrip.
+const PREVIEW_MIN_TILE: f32 = 96.0;
+const SCRUB_BAR_HEIGHT: f32 = 3.0;
 
 #[derive(Clone, Copy, Debug)]
 struct Band {
@@ -33,6 +39,14 @@ struct Band {
     active: bool,
     /// Extend the existing selection instead of replacing it.
     additive: bool,
+}
+
+/// The frame of a video's filmstrip under the pointer.
+struct Scrub {
+    frames: Frames,
+    frame: usize,
+    /// Pointer position across the tile, from 0 to 1.
+    fraction: f32,
 }
 
 #[derive(glib::Properties)]
@@ -66,6 +80,10 @@ pub struct PhotoGrid {
     pressed: Cell<Option<usize>>,
 
     pub(super) loader: RefCell<Option<Rc<ThumbnailLoader>>>,
+    filmstrips: RefCell<Option<Rc<Filmstrips>>>,
+    /// Bumped whenever the hovered tile changes, to void a pending fetch.
+    hover_generation: Cell<u64>,
+    hover_frame: Cell<Option<usize>>,
     pub(super) drag_files: RefCell<Option<DragFiles>>,
     icons: RefCell<HashMap<&'static str, gtk::IconPaintable>>,
     adjustment_handlers: RefCell<Vec<(gtk::Adjustment, glib::SignalHandlerId)>>,
@@ -98,6 +116,9 @@ impl Default for PhotoGrid {
             band_tick: Default::default(),
             pressed: Default::default(),
             loader: Default::default(),
+            filmstrips: Default::default(),
+            hover_generation: Default::default(),
+            hover_frame: Default::default(),
             drag_files: Default::default(),
             icons: Default::default(),
             adjustment_handlers: Default::default(),
@@ -275,6 +296,116 @@ impl PhotoGrid {
         *self.loader.borrow_mut() = Some(loader);
     }
 
+    pub(super) fn set_filmstrips(&self, filmstrips: Rc<Filmstrips>) {
+        let weak = self.obj().downgrade();
+        filmstrips.connect_loaded(move || {
+            weak.upgrade().is_some_and(|grid| {
+                grid.queue_draw();
+                true
+            })
+        });
+        *self.filmstrips.borrow_mut() = Some(filmstrips);
+    }
+
+    /// The pointer moved, or the content moved under it.
+    fn update_hover(&self, x: f64, y: f64) {
+        let obj = self.obj();
+        self.pointer.set(Some((x, y)));
+        let hover = self.item_at(x, y);
+        let header = if hover.is_none() {
+            self.header_at(x, y)
+        } else {
+            None
+        };
+        let changed = hover != self.hover.get() || header != self.hover_header.get();
+        if changed {
+            self.hover.set(hover);
+            self.hover_header.set(header);
+            self.hover_changed(hover);
+        }
+        let frame = hover
+            .and_then(|index| self.scrub(index))
+            .map(|scrub| scrub.frame);
+        if changed || frame != self.hover_frame.get() {
+            self.hover_frame.set(frame);
+            obj.queue_draw();
+        }
+        let pointer = hover.is_some() || header.is_some();
+        obj.set_cursor_from_name(pointer.then_some("pointer"));
+    }
+
+    fn clear_hover(&self) {
+        self.pointer.set(None);
+        self.hover.set(None);
+        self.hover_header.set(None);
+        self.hover_frame.set(None);
+        self.hover_changed(None);
+        self.obj().queue_draw();
+    }
+
+    /// Starts fetching a video's filmstrip once the pointer has rested on it.
+    fn hover_changed(&self, hover: Option<usize>) {
+        let generation = self.hover_generation.get() + 1;
+        self.hover_generation.set(generation);
+        let Some(filmstrips) = self.filmstrips.borrow().clone() else {
+            return;
+        };
+        filmstrips.cancel();
+        // Dragging a selection band sweeps over many tiles without looking at any.
+        if self.band.get().is_some() {
+            return;
+        }
+        let Some(item) = hover.and_then(|index| self.items.borrow().get(index).copied()) else {
+            return;
+        };
+        if !item.has(flags::VIDEO) || filmstrips.get(item.uuid).is_some() {
+            return;
+        }
+        let weak = self.obj().downgrade();
+        glib::timeout_add_local_once(
+            std::time::Duration::from_millis(u64::from(PREVIEW_DELAY_MS)),
+            move || {
+                let Some(grid) = weak.upgrade() else { return };
+                if grid.imp().hover_generation.get() == generation
+                    && grid.imp().band.get().is_none()
+                {
+                    filmstrips.request(item.id, item.uuid);
+                }
+            },
+        );
+    }
+
+    /// The filmstrip frame to show on a hovered video tile, if its strip is loaded.
+    fn scrub(&self, index: usize) -> Option<Scrub> {
+        if self.band.get().is_some() {
+            return None;
+        }
+        let item = self.items.borrow().get(index).copied()?;
+        if !item.has(flags::VIDEO) {
+            return None;
+        }
+        let tile = *self.layout.borrow().rects.get(index)?;
+        if tile.width < PREVIEW_MIN_TILE {
+            return None;
+        }
+        let (x, _) = self.pointer.get()?;
+        let frames = self.filmstrips.borrow().as_ref()?.get(item.uuid)?;
+        let last = frames.len().checked_sub(1)?;
+        #[allow(clippy::cast_possible_truncation)]
+        let fraction = ((x as f32 - tile.x) / tile.width).clamp(0.0, 1.0);
+        #[allow(
+            clippy::cast_precision_loss,
+            clippy::cast_possible_truncation,
+            clippy::cast_sign_loss
+        )]
+        let frame = ((fraction * frames.len() as f32) as usize).min(last);
+        Some(Scrub {
+            frames,
+            frame,
+            fraction,
+        })
+    }
+
     pub(super) fn set_items(&self, items: Rc<Vec<TimelineItem>>) {
         let anchor = self.scroll_anchor();
         let cursor_id = self
@@ -290,6 +421,8 @@ impl PhotoGrid {
         self.cursor.set(cursor);
         self.anchor.set(None);
         self.hover.set(None);
+        self.hover_frame.set(None);
+        self.hover_changed(None);
         self.layout_valid.set(false);
         let width = self.layout_width.get();
         if width > 0.0 {
@@ -458,6 +591,9 @@ impl PhotoGrid {
             let weak = self.obj().downgrade();
             let handler = adjustment.connect_value_changed(move |_| {
                 if let Some(grid) = weak.upgrade() {
+                    if let Some((x, y)) = grid.imp().pointer.get() {
+                        grid.imp().update_hover(x, y);
+                    }
                     grid.queue_draw();
                     grid.emit_by_name::<()>("scrolled", &[]);
                 }
@@ -701,33 +837,12 @@ impl PhotoGrid {
         motion.connect_motion(glib::clone!(
             #[weak(rename_to = grid)]
             obj,
-            move |_, x, y| {
-                let imp = grid.imp();
-                imp.pointer.set(Some((x, y)));
-                let hover = imp.item_at(x, y);
-                let header = if hover.is_none() {
-                    imp.header_at(x, y)
-                } else {
-                    None
-                };
-                if hover != imp.hover.get() || header != imp.hover_header.get() {
-                    imp.hover.set(hover);
-                    imp.hover_header.set(header);
-                    grid.queue_draw();
-                }
-                let pointer = hover.is_some() || header.is_some();
-                grid.set_cursor_from_name(pointer.then_some("pointer"));
-            }
+            move |_, x, y| grid.imp().update_hover(x, y)
         ));
         motion.connect_leave(glib::clone!(
             #[weak(rename_to = grid)]
             obj,
-            move |_| {
-                grid.imp().pointer.set(None);
-                grid.imp().hover.set(None);
-                grid.imp().hover_header.set(None);
-                grid.queue_draw();
-            }
+            move |_| grid.imp().clear_hover()
         ));
         obj.add_controller(motion);
 
@@ -1131,6 +1246,20 @@ fn rect(r: &Rect, dy: f32) -> graphene::Rect {
     graphene::Rect::new(r.x, r.y - dy, r.width, r.height)
 }
 
+/// A thin bar along the bottom of a tile showing how far into the video the
+/// pointer is.
+fn draw_scrub_bar(snapshot: &gtk::Snapshot, bounds: &graphene::Rect, fraction: f32) {
+    let y = bounds.y() + bounds.height() - SCRUB_BAR_HEIGHT;
+    snapshot.append_color(
+        &gdk::RGBA::new(1.0, 1.0, 1.0, 0.35),
+        &graphene::Rect::new(bounds.x(), y, bounds.width(), SCRUB_BAR_HEIGHT),
+    );
+    snapshot.append_color(
+        &gdk::RGBA::WHITE,
+        &graphene::Rect::new(bounds.x(), y, bounds.width() * fraction, SCRUB_BAR_HEIGHT),
+    );
+}
+
 fn check_rect(tile: &Rect) -> Rect {
     let size = if tile.width < 110.0 { 20.0 } else { CHECK_SIZE };
     Rect {
@@ -1261,7 +1390,15 @@ impl PhotoGrid {
                             rgba(item.color, 1.0)
                         };
                         snapshot.append_color(&base, &bounds);
-                        let texture = loader.as_ref().and_then(|loader| loader.get(item.uuid));
+                        let scrub = if self.hover.get() == Some(index) {
+                            self.scrub(index)
+                        } else {
+                            None
+                        };
+                        let texture = match &scrub {
+                            Some(scrub) => Some(scrub.frames[scrub.frame].clone()),
+                            None => loader.as_ref().and_then(|loader| loader.get(item.uuid)),
+                        };
                         match texture {
                             Some(texture) => {
                                 draw_texture(snapshot, &texture, &bounds, item.quarter_turns)
@@ -1294,6 +1431,9 @@ impl PhotoGrid {
                             }
                         }
                         self.draw_badges(snapshot, item, &bounds);
+                        if let Some(scrub) = &scrub {
+                            draw_scrub_bar(snapshot, &bounds, scrub.fraction);
+                        }
                         snapshot.pop();
                         if is_selected {
                             snapshot.append_border(&rounded, &[3.0; 4], &[accent; 4]);

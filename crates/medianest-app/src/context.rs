@@ -1,5 +1,5 @@
 //! What every page of an open library needs: the library, thumbnails,
-//! toasts, undo and navigation.
+//! hover filmstrips, toasts, undo and navigation.
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -9,6 +9,7 @@ use gtk::glib;
 use medianest_service::Library;
 
 use crate::config::Config;
+use crate::filmstrips::Filmstrips;
 use crate::i18n::tr;
 use crate::textures::ThumbnailLoader;
 
@@ -26,6 +27,7 @@ pub enum Destination {
 pub struct Ctx {
     pub library: Library,
     pub loader: Rc<ThumbnailLoader>,
+    pub filmstrips: Rc<Filmstrips>,
     pub config: Rc<RefCell<Config>>,
     pub window: adw::ApplicationWindow,
     toasts: adw::ToastOverlay,
@@ -54,6 +56,7 @@ impl Ctx {
     ) -> Rc<Self> {
         Rc::new(Self {
             loader: ThumbnailLoader::new(library.clone()),
+            filmstrips: Filmstrips::new(library.clone()),
             library,
             config,
             window,

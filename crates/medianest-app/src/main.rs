@@ -5,6 +5,7 @@ mod application;
 mod config;
 mod context;
 mod dialogs;
+mod filmstrips;
 mod grid;
 mod i18n;
 mod library_view;

@@ -84,7 +84,7 @@ impl std::fmt::Debug for TimelinePage {
 
 impl TimelinePage {
     pub fn new(ctx: Rc<Ctx>, options: TimelineOptions) -> Rc<Self> {
-        let grid = PhotoGrid::new(Rc::clone(&ctx.loader));
+        let grid = PhotoGrid::new(Rc::clone(&ctx.loader), Rc::clone(&ctx.filmstrips));
         {
             let config = ctx.config.borrow();
             grid.set_zoom(config.zoom);
