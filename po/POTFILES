@@ -11,6 +11,7 @@ crates/medianest-app/src/dialogs/new_library.rs
 crates/medianest-app/src/dialogs/preferences.rs
 crates/medianest-app/src/dialogs/shortcuts.rs
 crates/medianest-app/src/dialogs/tags.rs
+crates/medianest-app/src/filmstrips.rs
 crates/medianest-app/src/grid/imp.rs
 crates/medianest-app/src/grid/layout.rs
 crates/medianest-app/src/grid/mod.rs
@@ -28,6 +29,10 @@ crates/medianest-app/src/pages/review.rs
 crates/medianest-app/src/pages/similar.rs
 crates/medianest-app/src/pages/tags.rs
 crates/medianest-app/src/pages/timeline.rs
+crates/medianest-app/src/player/mod.rs
+crates/medianest-app/src/player/pipeline.rs
+crates/medianest-app/src/player/stream.rs
+crates/medianest-app/src/resources.rs
 crates/medianest-app/src/textures.rs
 crates/medianest-app/src/thumb.rs
 crates/medianest-app/src/util.rs
