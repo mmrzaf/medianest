@@ -71,11 +71,21 @@ Blueprint or UI files.
   pure computation, tested separately, and takes a few milliseconds for
   100,000 items. Thumbnails are decoded on worker threads; only what is on
   screen (and a screen ahead) is queued, and textures are kept within a
-  memory budget.
+  memory budget. Hovering a video scrubs through a cached filmstrip
+  (`filmstrips.rs`): one strip is fetched at a time, for the tile the pointer
+  rested on, and no video is decoded for it.
 - `viewer/` shows one item at a time: a zoomable image that starts from the
   grid thumbnail, sharpens to a cached preview, and loads the full
   resolution only when zoomed in; videos; Live Photos; and the information
   panel.
+- `player/` plays videos. `pipeline.rs` is a GStreamer pipeline that decodes
+  to frames in memory and releases everything when dropped (a test opens and
+  drops videos repeatedly and checks that no descriptors are left behind);
+  it decodes on the GPU through `vapostproc` when that is available and on the
+  CPU otherwise; `stream.rs` presents it as a `gtk::MediaStream`, so `gtk::Video` supplies
+  the controls. GTK's own GStreamer media backend is deliberately not used:
+  it leaks descriptors and threads for every file it opens. `resources.rs`
+  watches the process's descriptor count and stops playback near the limit.
 - `pages/` holds the sidebar sections, and `dialogs/` the import, date, tag,
   album, export and preferences dialogs.
 - All library work runs off the main thread; the interface reacts to the

@@ -62,8 +62,11 @@ click to switch between fitting the window and 100 %, and drag to pan. The
 information panel (**i**) shows the date and where it came from, the camera,
 the place on a map, tags, albums and every file location.
 
-Videos play in the viewer. Live Photos and motion photos have a **LIVE**
-button that plays their short video.
+Videos play in the viewer with GStreamer, so playback depends on the
+GStreamer plugins that your system provides. Live Photos and motion photos
+have a **LIVE** button that plays their short video. In the grid, rest the pointer on a video
+and move it across the tile to scrub through frames sampled along the video; a
+thin bar shows how far in you are.
 
 ## Selecting and changing photos
 

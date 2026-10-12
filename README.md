@@ -54,18 +54,22 @@ Build a package and install it:
 
 ```sh
 sudo apt install cargo pkg-config libgtk-4-dev libadwaita-1-dev \
-    libshumate-dev libheif-dev gettext dpkg-dev
+    libshumate-dev libheif-dev libgstreamer1.0-dev \
+    libgstreamer-plugins-base1.0-dev gettext dpkg-dev
 scripts/build-deb.sh
 sudo apt install ./dist/medianest_1.0.0_amd64.deb
 ```
 
-The package recommends `ffmpeg` (video thumbnails and JPEG XL) and the
-GStreamer plugins that play videos.
+The package recommends `ffmpeg` (video thumbnails, hover previews and JPEG XL)
+and the GStreamer plugins that play videos. With `gstreamer1.0-plugins-bad` and
+a VA-API driver, 4K and 10-bit videos are decoded on the GPU; without them
+they are decoded on the CPU, which may be too slow for large phone videos.
 
 ### From source, any distribution
 
 Requirements: Rust 1.85 or newer, GTK 4.18, libadwaita 1.7, libshumate 1.4,
-libheif 1.19, and at runtime `ffmpeg`/`ffprobe` plus GStreamer for playback.
+libheif 1.19, GStreamer 1.22 (with its base and good plugins, and a decoder
+such as `gstreamer1.0-libav`) for playback, and at runtime `ffmpeg`/`ffprobe`.
 
 ```sh
 PREFIX=$HOME/.local scripts/install.sh      # just for you

@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+- Fix crashes with "Too many open files" after browsing many videos. Videos
+  now play through MediaNest's own GStreamer player; GTK's built-in media
+  backend leaked about 20 file descriptors and 12 threads for every video
+  opened, even when it was only paused. Opening 40 videos now leaves the
+  descriptor count unchanged and closing the viewer returns it to its start.
+  Rotated phone videos play upright, very large frames are scaled down, and
+  the GPU decodes, scales and converts them when VA-API is available (4K
+  10-bit HEVC plays several times faster than on the CPU).
+- MediaNest watches its own open-file count. Near the limit it says so, stops
+  opening videos and offers to quit cleanly, instead of being aborted.
+- Rest the pointer on a video in the grid and move it across the tile to scrub
+  through frames of the video, with a bar showing the position. The frames are
+  made once by `ffmpeg` and cached with the previews; nothing is played.
 - Move removes each original as soon as its copy is verified, instead of
   keeping every original until you approve removal. Originals that changed
   or cannot be removed safely are kept and shown in Review.

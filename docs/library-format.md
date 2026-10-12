@@ -108,6 +108,8 @@ Restoring a backup saves the current catalog next to it first. Back up the
 
 ## Thumbnails
 
-Thumbnails and viewer previews are cached outside the library, in
-`$XDG_CACHE_HOME/medianest/<library uuid>/`. They can be deleted at any time
-and are made again as needed.
+Thumbnails, viewer previews and the hover filmstrips of videos (eight frames
+side by side in one image, made the first time the pointer rests on a video)
+are cached outside the library, in `$XDG_CACHE_HOME/medianest/<library uuid>/`.
+They can be deleted at any time and are made again as needed. Filmstrips live
+in `previews/`, so they are counted and trimmed with previews.
