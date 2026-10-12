@@ -3,7 +3,7 @@
 use std::fs;
 use std::path::Path;
 
-use medianest_catalog::Operation;
+use medianest_catalog::{FileLocation, Operation};
 use medianest_core::{
     FileStamp, OperationKind, OperationState, OperationUuid, PathBytes, ReviewState,
 };
@@ -13,12 +13,21 @@ use crate::faults::{Checkpoint, hit};
 use crate::fsops::{hash_file, rename_no_replace, sync_dir};
 use crate::{Result, Vault, VaultError};
 
+/// How much to trust the library's copy before removing the original.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum CopyCheck {
+    /// Read the copy again and compare its content.
+    Content,
+    /// The copy was verified by this operation and has not been touched since.
+    Unchanged,
+}
+
 pub(crate) fn aside_name(operation: OperationUuid) -> String {
     format!(".medianest-removing-{}", operation.simple())
 }
 
 impl Vault<'_> {
-    /// Removes the original of a staged move.
+    /// Removes the original of a move that is waiting for approval.
     ///
     /// Refuses unless a verified copy is in the library and the original is
     /// still the very same file, unchanged since it was copied: same device,
@@ -32,6 +41,18 @@ impl Vault<'_> {
         {
             return Err(VaultError::InvalidState);
         }
+        self.remove_original(&mut operation, control, CopyCheck::Content)
+    }
+
+    /// Removes `operation`'s original after the checks described at
+    /// [`Self::approve_removal`].
+    pub(crate) fn remove_original(
+        &self,
+        operation: &mut Operation,
+        control: &Control,
+        copy_check: CopyCheck,
+    ) -> Result<()> {
+        let uuid = operation.uuid;
         let hash = operation.hash.ok_or(VaultError::InvalidState)?;
         let stamp = operation.source_stamp.ok_or(VaultError::InvalidState)?;
         let source = operation
@@ -41,11 +62,10 @@ impl Vault<'_> {
             .ok_or(VaultError::InvalidState)?;
 
         let asset = operation.asset_id.ok_or(VaultError::CopyNotVerified)?;
-        let copy = self
+        let location = self
             .managed_copy(asset)?
             .ok_or(VaultError::CopyNotVerified)?;
-        let copy_ok = hash_file(&copy, control).is_ok_and(|(found, _)| found == hash);
-        if !copy_ok {
+        if !self.copy_is_intact(&location, &hash, copy_check, control) {
             return Err(VaultError::CopyNotVerified);
         }
 
@@ -53,7 +73,7 @@ impl Vault<'_> {
             Ok(meta) => FileStamp::from_metadata(&meta),
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
                 // Already gone: nothing to remove.
-                return self.complete_removal(&mut operation);
+                return self.complete_removal(operation);
             }
             Err(error) => {
                 return Err(VaultError::Io {
@@ -64,11 +84,11 @@ impl Vault<'_> {
             }
         };
         if !stamp.same_file_unchanged(&current) {
-            return Err(self.refuse(&mut operation, VaultError::SourceReplaced(source)));
+            return Err(self.refuse(operation, VaultError::SourceReplaced(source)));
         }
         let content_same = hash_file(&source, control).is_ok_and(|(found, _)| found == hash);
         if !content_same {
-            return Err(self.refuse(&mut operation, VaultError::SourceReplaced(source)));
+            return Err(self.refuse(operation, VaultError::SourceReplaced(source)));
         }
 
         let parent = source
@@ -78,12 +98,33 @@ impl Vault<'_> {
         let aside = parent.join(aside_name(uuid));
         operation.aside_path = Some(PathBytes::from_path(&aside));
         operation.state = OperationState::Removing;
-        self.write(|writer| writer.save_operation(&operation))?;
+        self.write(|writer| writer.save_operation(operation))?;
         rename_no_replace(&source, &aside)
             .map_err(VaultError::io("could not move aside", &source))?;
         sync_dir(&parent)?;
         hit(self.faults, Checkpoint::AfterAside)?;
-        self.remove_aside(&mut operation, &aside)
+        self.remove_aside(operation, &aside)
+    }
+
+    /// Whether the library's copy still holds the content `hash`.
+    fn copy_is_intact(
+        &self,
+        location: &FileLocation,
+        hash: &[u8; 32],
+        check: CopyCheck,
+        control: &Control,
+    ) -> bool {
+        let path = location.path();
+        if check == CopyCheck::Unchanged && location.file.hash.as_ref() == Some(hash) {
+            // Verified moments ago: the file untouched since proves it.
+            let untouched = fs::symlink_metadata(&path)
+                .map(|meta| FileStamp::from_metadata(&meta))
+                .is_ok_and(|now| location.file.stamp.same_file_unchanged(&now));
+            if untouched {
+                return true;
+            }
+        }
+        hash_file(&path, control).is_ok_and(|(found, _)| found == *hash)
     }
 
     /// Deletes the renamed-aside original after confirming it is the same file object.
@@ -92,12 +133,7 @@ impl Vault<'_> {
         let meta =
             fs::symlink_metadata(aside).map_err(VaultError::io("could not inspect", aside))?;
         let found = FileStamp::from_metadata(&meta);
-        // A rename updates the change time, so compare the other identity fields.
-        let same = found.device == stamp.device
-            && found.inode == stamp.inode
-            && found.size == stamp.size
-            && found.mtime_ns == stamp.mtime_ns;
-        if !same {
+        if !stamp.same_file_renamed(&found) {
             operation.state = OperationState::NeedsReview;
             operation.error =
                 Some("the file set aside for removal is not the imported original".into());

@@ -85,8 +85,10 @@ int_enum!(
     OperationKind {
         /// Copy a file into the managed folder.
         CopyIn = 1,
-        /// Copy a file into the managed folder, then remove the original after approval.
+        /// Copy a file into the managed folder, then remove the original.
         MoveIn = 2,
+        /// Move a file into the managed folder by renaming it, on the same filesystem.
+        RenameIn = 3,
     }
 );
 
@@ -96,10 +98,11 @@ int_enum!(
         /// Recorded before any file is touched.
         Planned = 1,
         /// A temporary copy is being written next to the destination.
+        /// Only journals written by 1.0.0 contain it.
         Copying = 2,
         /// The temporary copy matches the source byte for byte.
         Verified = 3,
-        /// The copy is at its final path.
+        /// The copy is at its final path. Only journals written by 1.0.0 contain it.
         Installed = 4,
         /// The catalog references the installed copy.
         Catalogued = 5,

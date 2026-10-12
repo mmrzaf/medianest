@@ -232,6 +232,16 @@ impl FileStamp {
             }
     }
 
+    /// The same file object after a rename. A rename updates the change time
+    /// and nothing else, so that is the one field not compared.
+    #[must_use]
+    pub fn same_file_renamed(&self, other: &Self) -> bool {
+        self.device == other.device
+            && self.inode == other.inode
+            && self.size == other.size
+            && self.mtime_ns == other.mtime_ns
+    }
+
     /// Cheap check used by rescans: same size and modification time.
     #[must_use]
     pub fn looks_unmodified(&self, other: &Self) -> bool {

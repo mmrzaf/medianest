@@ -16,6 +16,8 @@ pub enum VaultError {
         #[source]
         source: std::io::Error,
     },
+    #[error("there is not enough free space on the disk holding {0}")]
+    NoSpace(PathBuf),
     #[error("{0} is not a MediaNest library")]
     NotALibrary(PathBuf),
     #[error("{0} already contains a MediaNest library")]
@@ -61,10 +63,44 @@ impl VaultError {
         path: impl Into<PathBuf>,
     ) -> impl FnOnce(std::io::Error) -> Self {
         let path = path.into();
-        move |source| Self::Io {
-            action,
-            path,
-            source,
+        move |source| {
+            if is_out_of_space(&source) {
+                Self::NoSpace(path)
+            } else {
+                Self::Io {
+                    action,
+                    path,
+                    source,
+                }
+            }
         }
+    }
+}
+
+/// A write failed because the disk or the user's quota is full.
+fn is_out_of_space(error: &std::io::Error) -> bool {
+    matches!(
+        error.kind(),
+        std::io::ErrorKind::StorageFull | std::io::ErrorKind::QuotaExceeded
+    )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn full_disks_and_quotas_become_no_space() {
+        for kind in [
+            std::io::ErrorKind::StorageFull,
+            std::io::ErrorKind::QuotaExceeded,
+        ] {
+            let error = VaultError::io("could not write", "/library/Media")(kind.into());
+            assert!(matches!(error, VaultError::NoSpace(_)), "{kind:?}");
+        }
+        let other = VaultError::io("could not write", "/library/Media")(
+            std::io::ErrorKind::PermissionDenied.into(),
+        );
+        assert!(matches!(other, VaultError::Io { .. }));
     }
 }

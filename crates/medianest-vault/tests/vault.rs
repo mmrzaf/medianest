@@ -8,8 +8,8 @@ use medianest_catalog::{Writer, flags};
 use medianest_core::{FileStatus, OperationState, OperationUuid, ReviewKind, SourceKind};
 use medianest_media::MediaToolkit;
 use medianest_vault::{
-    Checkpoint, Control, CrashAt, ImportMode, ImportOutcome, Layout, LinkedPolicy, RecoveryReport,
-    Vault, VaultError,
+    Checkpoint, Control, CrashAt, CrossDevice, ImportMode, ImportOutcome, Layout, LinkedPolicy,
+    RecoveryReport, Vault, VaultError,
 };
 
 struct Library {
@@ -47,6 +47,14 @@ impl Library {
     fn photo(&self, name: &str, seed: u8) -> PathBuf {
         let path = self.outside.join(name);
         write_photo(&path, seed);
+        path
+    }
+
+    /// A photo with a second hard link next to it. A move cannot rename such a
+    /// file into the library, so it is copied and its original removed.
+    fn linked_photo(&self, name: &str, seed: u8) -> PathBuf {
+        let path = self.photo(name, seed);
+        fs::hard_link(&path, self.outside.join(format!("{name}.link"))).expect("link");
         path
     }
 
@@ -201,9 +209,12 @@ fn assert_original_kept_for_review(lib: &Library, original: &Path) -> OperationU
 }
 
 #[test]
-fn moves_remove_the_original_once_the_copy_is_verified() {
+fn moves_rename_the_original_into_the_library() {
+    use std::os::unix::fs::MetadataExt;
     let lib = Library::new();
-    let original = lib.photo("move.png", 6);
+    let original = lib.photo("rename.png", 6);
+    let inode = fs::metadata(&original).expect("stat").ino();
+    let bytes = fs::read(&original).expect("read");
     let outcome = lib.import(&original, ImportMode::Move).expect("import");
     let ImportOutcome::Imported {
         awaiting_removal: None,
@@ -213,14 +224,126 @@ fn moves_remove_the_original_once_the_copy_is_verified() {
         panic!("expected a finished move, got {outcome:?}");
     };
     assert!(!original.exists());
-    assert_eq!(lib.managed_files().len(), 1);
+    let files = lib.managed_files();
+    assert_eq!(files.len(), 1);
+    assert_eq!(fs::metadata(&files[0]).expect("stat").ino(), inode);
+    assert_eq!(fs::read(&files[0]).expect("read"), bytes);
     let writer = lib.writer.lock().unwrap();
+    assert_eq!(writer.stats().expect("stats").managed_files, 1);
     assert!(writer.reviews(None, 10).expect("reviews").is_empty());
     assert!(writer.unfinished_operations().expect("ops").is_empty());
     drop(writer);
+    assert!(walk(&lib.outside).is_empty(), "nothing is left behind");
+}
+
+#[test]
+fn moves_copy_originals_that_have_other_links() {
+    use std::os::unix::fs::MetadataExt;
+    let lib = Library::new();
+    let original = lib.linked_photo("linked.png", 16);
+    let inode = fs::metadata(&original).expect("stat").ino();
+    let bytes = fs::read(&original).expect("read");
+    lib.import(&original, ImportMode::Move).expect("import");
+    assert!(!original.exists());
+    let files = lib.managed_files();
+    assert_eq!(files.len(), 1);
+    assert_ne!(
+        fs::metadata(&files[0]).expect("stat").ino(),
+        inode,
+        "the library file must not share its content with a file outside"
+    );
+    assert_eq!(fs::read(&files[0]).expect("read"), bytes);
+    assert_eq!(
+        fs::read(lib.outside.join("linked.png.link")).expect("other link"),
+        bytes
+    );
     assert!(
-        walk(&lib.outside).is_empty(),
-        "no leftovers next to the original"
+        lib.writer
+            .lock()
+            .unwrap()
+            .unfinished_operations()
+            .expect("ops")
+            .is_empty()
+    );
+}
+
+#[test]
+fn moves_fall_back_to_copying_when_the_rename_crosses_filesystems() {
+    use std::os::unix::fs::MetadataExt;
+    let lib = Library::new();
+    let original = lib.photo("far.png", 17);
+    let inode = fs::metadata(&original).expect("stat").ino();
+    let bytes = fs::read(&original).expect("read");
+    let metadata = lib.toolkit.probe(&original).expect("probe");
+    let vault = Vault {
+        layout: &lib.layout,
+        catalog: &lib.writer,
+        faults: &CrossDevice,
+    };
+    let outcome = vault
+        .import_file(
+            &original,
+            &metadata,
+            ImportMode::Move,
+            None,
+            &Control::new(),
+        )
+        .expect("import");
+    assert!(matches!(
+        outcome,
+        ImportOutcome::Imported {
+            awaiting_removal: None,
+            ..
+        }
+    ));
+    assert!(!original.exists());
+    let files = lib.managed_files();
+    assert_eq!(files.len(), 1);
+    assert_ne!(fs::metadata(&files[0]).expect("stat").ino(), inode);
+    assert_eq!(fs::read(&files[0]).expect("read"), bytes);
+    let writer = lib.writer.lock().unwrap();
+    assert!(writer.unfinished_operations().expect("ops").is_empty());
+    assert!(writer.reviews(None, 10).expect("reviews").is_empty());
+}
+
+#[test]
+fn recovery_finishes_a_rename_that_stopped_between_link_and_unlink() {
+    let lib = Library::new();
+    let original = lib.photo("both.png", 18);
+    let bytes = fs::read(&original).expect("read");
+    let metadata = lib.toolkit.probe(&original).expect("probe");
+    let crashing = Vault {
+        layout: &lib.layout,
+        catalog: &lib.writer,
+        faults: &CrashAt(Checkpoint::AfterRename),
+    };
+    crashing
+        .import_file(
+            &original,
+            &metadata,
+            ImportMode::Move,
+            None,
+            &Control::new(),
+        )
+        .expect_err("crash");
+    // Rebuild what a link-then-unlink rename leaves when it stops in between:
+    // the destination exists and the original has its old name back.
+    let placed = lib.managed_files().remove(0);
+    fs::hard_link(&placed, &original).expect("second name");
+    let report = lib.vault().recover(&lib.probe_fn()).expect("recover");
+    assert_eq!(report.completed, 1);
+    assert!(!original.exists(), "the leftover name is removed");
+    let files = lib.managed_files();
+    assert_eq!(files.len(), 1);
+    assert_eq!(fs::read(&files[0]).expect("read"), bytes);
+    assert_eq!(
+        lib.writer
+            .lock()
+            .unwrap()
+            .stats()
+            .expect("stats")
+            .managed_files,
+        1
     );
 }
 
@@ -246,7 +369,7 @@ fn moving_a_duplicate_removes_the_original_too() {
 #[test]
 fn a_replaced_original_is_kept_even_with_identical_bytes() {
     let lib = Library::new();
-    let original = lib.photo("replace.png", 7);
+    let original = lib.linked_photo("replace.png", 7);
     let report = stage_move(&lib, &original, || {
         let bytes = fs::read(&original).expect("read");
         fs::remove_file(&original).expect("remove");
@@ -260,7 +383,7 @@ fn a_replaced_original_is_kept_even_with_identical_bytes() {
 #[test]
 fn an_edited_original_is_kept_until_the_user_decides() {
     let lib = Library::new();
-    let original = lib.photo("edit.png", 8);
+    let original = lib.linked_photo("edit.png", 8);
     let report = stage_move(&lib, &original, || {
         std::thread::sleep(std::time::Duration::from_millis(20));
         write_photo(&original, 9);
@@ -319,13 +442,21 @@ fn cancelled_imports_leave_nothing_behind() {
 
 #[test]
 fn recovery_after_a_crash_at_any_checkpoint_keeps_the_invariant() {
-    for mode in [ImportMode::Copy, ImportMode::Move] {
+    // A copy, a rename move, and a move that has to copy because the
+    // original has another hard link.
+    let mut reached = std::collections::HashSet::new();
+    for (mode, linked) in [
+        (ImportMode::Copy, false),
+        (ImportMode::Move, false),
+        (ImportMode::Move, true),
+    ] {
         for &checkpoint in Checkpoint::ALL {
-            if checkpoint == Checkpoint::AfterAside {
-                continue;
-            }
             let lib = Library::new();
-            let original = lib.photo("crash.png", 13);
+            let original = if linked {
+                lib.linked_photo("crash.png", 13)
+            } else {
+                lib.photo("crash.png", 13)
+            };
             let bytes = fs::read(&original).expect("read");
             let metadata = lib.toolkit.probe(&original).expect("probe");
             let crashing = Vault {
@@ -334,10 +465,15 @@ fn recovery_after_a_crash_at_any_checkpoint_keeps_the_invariant() {
                 faults: &CrashAt(checkpoint),
             };
             let result = crashing.import_file(&original, &metadata, mode, None, &Control::new());
+            if result.is_ok() {
+                // This kind of import never passes through the checkpoint.
+                continue;
+            }
             assert!(
                 matches!(result, Err(VaultError::Interrupted(_))),
                 "{checkpoint:?}: {result:?}"
             );
+            reached.insert(checkpoint);
 
             let probe = lib.probe_fn();
             let first = lib.vault().recover(&probe).expect("recover");
@@ -393,12 +529,17 @@ fn recovery_after_a_crash_at_any_checkpoint_keeps_the_invariant() {
             let _ = first;
         }
     }
+    assert_eq!(
+        reached.len(),
+        Checkpoint::ALL.len(),
+        "every checkpoint is exercised by some kind of import"
+    );
 }
 
 #[test]
 fn recovery_finishes_a_removal_interrupted_after_the_rename() {
     let lib = Library::new();
-    let original = lib.photo("aside.png", 14);
+    let original = lib.linked_photo("aside.png", 14);
     let metadata = lib.toolkit.probe(&original).expect("probe");
     let crashing = Vault {
         layout: &lib.layout,
@@ -419,13 +560,13 @@ fn recovery_finishes_a_removal_interrupted_after_the_rename() {
     assert!(!original.exists());
     assert_eq!(
         walk(&lib.outside).len(),
-        1,
-        "the original is set aside, not yet removed"
+        2,
+        "the original is set aside next to its other link, not yet removed"
     );
     let probe = lib.probe_fn();
     let report = lib.vault().recover(&probe).expect("recover");
     assert_eq!(report.completed, 1);
-    assert!(walk(&lib.outside).is_empty());
+    assert_eq!(walk(&lib.outside), vec![lib.outside.join("aside.png.link")]);
     assert_eq!(lib.managed_files().len(), 1);
 }
 

@@ -2,9 +2,9 @@
 
 use std::ffi::OsStr;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
-use medianest_catalog::{NewFile, Operation, ReviewSubject};
+use medianest_catalog::{FileLocation, NewFile, Operation, ReviewSubject};
 use medianest_core::{
     AssetId, AssetMetadata, FileId, FileStamp, FileStatus, OperationKind, OperationState,
     OperationUuid, PathBytes, ReviewKind, SourceKind,
@@ -12,8 +12,12 @@ use medianest_core::{
 
 use crate::control::Control;
 use crate::faults::{Checkpoint, hit};
-use crate::fsops::{copy_hashed, create_new, hash_file, open_regular, rename_no_replace, sync_dir};
+use crate::fsops::{
+    SPACE_RESERVE, available_space, copy_hashed, create_dir_all_durable, create_new, hash_file,
+    open_regular, rename_no_replace, sync_dir,
+};
 use crate::naming::{managed_relpath, with_hash_suffix};
+use crate::removal::CopyCheck;
 use crate::{Result, Vault, VaultError};
 
 /// What happens to originals after a managed import.
@@ -52,11 +56,16 @@ pub(crate) fn temp_name(operation: OperationUuid) -> String {
 }
 
 impl Vault<'_> {
-    fn save(&self, operation: &Operation) -> Result<()> {
+    pub(crate) fn save(&self, operation: &Operation) -> Result<()> {
         self.write(|writer| writer.save_operation(operation))
     }
 
-    fn fail(&self, operation: &mut Operation, state: OperationState, error: &VaultError) {
+    pub(crate) fn fail(
+        &self,
+        operation: &mut Operation,
+        state: OperationState,
+        error: &VaultError,
+    ) {
         operation.state = state;
         operation.error = Some(error.to_string());
         if let Err(save_error) = self.save(operation) {
@@ -75,29 +84,39 @@ impl Vault<'_> {
         }
     }
 
-    /// The managed folder's source id and a present managed copy of `asset`, if any.
-    pub(crate) fn managed_copy(&self, asset: AssetId) -> Result<Option<PathBuf>> {
+    /// A present managed copy of `asset`, if any.
+    pub(crate) fn managed_copy(&self, asset: AssetId) -> Result<Option<FileLocation>> {
         let files = self.writer().files_of(asset)?;
-        Ok(files
-            .into_iter()
-            .find(|location| {
-                location.source_kind == SourceKind::Managed
-                    && matches!(
-                        location.file.status,
-                        FileStatus::Verified | FileStatus::Unverified
-                    )
-                    && location.file.trash_path.is_none()
-            })
-            .map(|location| location.path()))
+        Ok(files.into_iter().find(|location| {
+            location.source_kind == SourceKind::Managed
+                && matches!(
+                    location.file.status,
+                    FileStatus::Verified | FileStatus::Unverified
+                )
+                && location.file.trash_path.is_none()
+        }))
     }
 
-    /// Copies one file into the managed folder.
+    /// Fails before anything is written when `size` bytes and the reserve do
+    /// not fit, so a full disk stops an import instead of failing every file.
+    fn ensure_space(&self, size: u64) -> Result<()> {
+        let media = self.layout.media();
+        if available_space(&media)? < size.saturating_add(SPACE_RESERVE) {
+            return Err(VaultError::NoSpace(media));
+        }
+        Ok(())
+    }
+
+    /// Brings one file into the managed folder.
     ///
-    /// The copy is written next to its destination under a temporary name,
+    /// A copy is written next to its destination under a temporary name,
     /// synced, re-read and compared with the original's hash, then installed
     /// with a rename that never replaces an existing file. The original is
     /// only read. For [`ImportMode::Move`] it is then removed, after checks
     /// that it is still the file that was copied.
+    ///
+    /// A move of a file on the library's own filesystem renames it instead
+    /// (see `rename.rs`): nothing is copied, so no extra space is needed.
     pub fn import_file(
         &self,
         source: &Path,
@@ -117,8 +136,10 @@ impl Vault<'_> {
         let stamp = FileStamp::from_metadata(&source_metadata);
         let file_name = source.file_name().unwrap_or_else(|| OsStr::new("unnamed"));
         let relpath = managed_relpath(metadata, file_name);
+        let renamable = mode == ImportMode::Move && self.can_rename(&source_metadata);
         let kind = match mode {
             ImportMode::Copy => OperationKind::CopyIn,
+            ImportMode::Move if renamable => OperationKind::RenameIn,
             ImportMode::Move => OperationKind::MoveIn,
         };
         let mut operation = Operation::planned(
@@ -128,31 +149,42 @@ impl Vault<'_> {
             relpath.clone(),
             batch.map(str::to_owned),
         );
-        self.save(&operation)?;
-        hit(self.faults, Checkpoint::AfterPlan)?;
-
+        // The temporary copy's name is fixed by the operation, so it is
+        // journaled with the plan and recovery knows what to clean up.
         let destination = self.layout.media().join(relpath.as_path());
         let folder = destination
             .parent()
-            .map(Path::to_path_buf)
-            .unwrap_or_else(|| self.layout.media());
-        if let Err(error) = fs::create_dir_all(&folder) {
-            let error = VaultError::Io {
-                action: "could not create",
-                path: folder,
-                source: error,
-            };
+            .map_or_else(|| self.layout.media(), Path::to_path_buf);
+        let temp = folder.join(temp_name(operation.uuid));
+        if !renamable {
+            operation.temp_path = Some(PathBytes::from_path(&temp));
+        }
+        self.save(&operation)?;
+        hit(self.faults, Checkpoint::AfterPlan)?;
+
+        if renamable {
+            if let Some(outcome) =
+                self.rename_in(&mut operation, &mut source_file, metadata, control)?
+            {
+                return Ok(outcome);
+            }
+            // Not the same filesystem after all: copy, then remove the original.
+            operation.kind = OperationKind::MoveIn;
+            operation.hash = None;
+            operation.state = OperationState::Planned;
+            operation.temp_path = Some(PathBytes::from_path(&temp));
+            self.save(&operation)?;
+            source_file = open_regular(&source)?.0;
+        }
+        if let Err(error) = self.ensure_space(source_metadata.len()) {
             self.fail(&mut operation, OperationState::Failed, &error);
             return Err(error);
         }
-        sync_dir(&folder)?;
-        if let Some(parent) = folder.parent() {
-            sync_dir(parent)?;
+
+        if let Err(error) = create_dir_all_durable(&folder) {
+            self.fail(&mut operation, OperationState::Failed, &error);
+            return Err(error);
         }
-        let temp = folder.join(temp_name(operation.uuid));
-        operation.temp_path = Some(PathBytes::from_path(&temp));
-        operation.state = OperationState::Copying;
-        self.save(&operation)?;
         let mut temp_file = match create_new(&temp) {
             Ok(file) => file,
             Err(error) => {
@@ -177,7 +209,6 @@ impl Vault<'_> {
                 return Err(error);
             }
         };
-        sync_dir(&folder)?;
         hit(self.faults, Checkpoint::AfterCopy)?;
 
         // The original must still be the same, untouched file.
@@ -243,9 +274,7 @@ impl Vault<'_> {
         }
 
         let installed = self.install(&temp, &relpath, &hash)?;
-        operation.dest_relpath = Some(installed.clone());
-        operation.state = OperationState::Installed;
-        self.save(operation)?;
+        operation.dest_relpath = Some(installed);
         hit(self.faults, Checkpoint::AfterInstall)?;
 
         self.catalog_installed(operation, metadata, control)
@@ -273,11 +302,20 @@ impl Vault<'_> {
             .map(|name| name.to_string_lossy().into_owned())
             .unwrap_or_default();
         let existing_file = self.writer().file_by_path(managed, &relpath)?;
+        // A copy or rename is finished by the same commit that catalogues it.
+        operation.state = match operation.kind {
+            OperationKind::CopyIn | OperationKind::RenameIn => OperationState::Completed,
+            OperationKind::MoveIn => OperationState::Catalogued,
+        };
         let (asset, file, new_asset) = match existing_file {
             // Recovery may find the copy already catalogued.
-            Some(record) => (record.asset_id, record.id, false),
+            Some(record) => {
+                operation.asset_id = Some(record.asset_id);
+                operation.file_id = Some(record.id);
+                self.save(operation)?;
+                (record.asset_id, record.id, false)
+            }
             None => {
-                operation.state = OperationState::Catalogued;
                 let added = self.write(|writer| {
                     writer.catalog_installed(
                         operation,
@@ -297,8 +335,6 @@ impl Vault<'_> {
         };
         operation.asset_id = Some(asset);
         operation.file_id = Some(file);
-        operation.state = OperationState::Catalogued;
-        self.save(operation)?;
         hit(self.faults, Checkpoint::AfterCatalogued)?;
         self.finish(
             operation,
@@ -322,22 +358,27 @@ impl Vault<'_> {
         control: &Control,
     ) -> Result<ImportOutcome> {
         match operation.kind {
-            OperationKind::CopyIn => {
-                operation.state = OperationState::Completed;
-                self.save(operation)?;
+            OperationKind::CopyIn | OperationKind::RenameIn => {
+                if operation.state != OperationState::Completed {
+                    // Duplicates and recovered operations were not completed
+                    // by a catalog commit.
+                    operation.state = OperationState::Completed;
+                    self.save(operation)?;
+                }
                 Ok(outcome)
             }
             OperationKind::MoveIn => {
                 operation.state = OperationState::AwaitingRemoval;
-                self.save(operation)?;
                 let uuid = operation.uuid;
-                match self.approve_removal(uuid, control) {
+                match self.remove_original(operation, control, CopyCheck::Unchanged) {
                     Ok(()) => return Ok(outcome),
                     Err(error @ (VaultError::Cancelled | VaultError::Interrupted(_))) => {
                         return Err(error);
                     }
                     Err(error) => {
                         tracing::warn!(operation = %uuid, %error, "original kept after a move");
+                        // The attempt may have advanced the state before failing.
+                        operation.state = OperationState::AwaitingRemoval;
                         operation.error = Some(error.to_string());
                         self.save(operation)?;
                     }

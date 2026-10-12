@@ -1,14 +1,17 @@
 //! Finishing or undoing operations interrupted by a crash or power loss.
 //!
 //! Recovery only advances an operation when the bytes on disk prove the
-//! journaled state, and never removes an original on its own. Running it
-//! twice has the same effect as running it once.
+//! journaled state. It removes the original of a move only after the same
+//! checks as at import time. Running it twice has the same effect as running
+//! it once.
 
 use std::fs;
 use std::path::{Path, PathBuf};
 
 use medianest_catalog::{Operation, ReviewSubject};
-use medianest_core::{AssetMetadata, OperationState, PathBytes, ReviewKind};
+use medianest_core::{
+    AssetMetadata, FileStamp, OperationKind, OperationState, PathBytes, ReviewKind,
+};
 use medianest_media::ProbeError;
 
 use crate::control::Control;
@@ -117,7 +120,7 @@ impl Vault<'_> {
         Ok(Outcome::RolledBack)
     }
 
-    fn escalate(&self, operation: &mut Operation, reason: &str) -> Result<()> {
+    pub(crate) fn escalate(&self, operation: &mut Operation, reason: &str) -> Result<()> {
         operation.state = OperationState::NeedsReview;
         operation.error = Some(reason.to_owned());
         let uuid = operation.uuid;
@@ -152,7 +155,93 @@ impl Vault<'_> {
         }
     }
 
+    /// A rename move interrupted around the rename itself. What is on disk
+    /// decides: the original untouched means nothing happened; the file at the
+    /// destination with the journaled identity and hash means the rename
+    /// completed, even if the journal never heard of it.
+    fn recover_rename(&self, operation: &mut Operation, probe: Probe<'_>) -> Result<Outcome> {
+        let hash = operation.hash;
+        let stamp = operation.source_stamp.ok_or(VaultError::InvalidState)?;
+        let source = operation
+            .source_path
+            .as_ref()
+            .map(PathBytes::to_path_buf)
+            .ok_or(VaultError::InvalidState)?;
+        let stamp_of = |path: &Path| {
+            fs::symlink_metadata(path)
+                .ok()
+                .map(|meta| FileStamp::from_metadata(&meta))
+        };
+        let (Some(hash), Some(destination)) = (hash, self.destination_of(operation)) else {
+            // Interrupted before the content was hashed: nothing was moved.
+            return self.roll_back(
+                operation,
+                "interrupted before the rename; the original is untouched",
+            );
+        };
+        let at_source = stamp_of(&source);
+        let at_destination = stamp_of(&destination);
+        match (at_source, at_destination) {
+            (Some(original), None) if stamp.same_file_unchanged(&original) => self.roll_back(
+                operation,
+                "interrupted before the rename; the original is untouched",
+            ),
+            (Some(original), Some(placed))
+                if original.device == placed.device && original.inode == placed.inode =>
+            {
+                // The rename was a link followed by an unlink and stopped in
+                // between: two names for one file. Finish the unlink.
+                if !self.has_content(&destination, &hash) {
+                    return self
+                        .needs_review(operation, "the moved file does not match the original");
+                }
+                fs::remove_file(&source).map_err(VaultError::io("could not remove", &source))?;
+                if let Some(parent) = source.parent() {
+                    crate::fsops::sync_dir(parent)?;
+                }
+                self.finish_rename(operation, &destination, probe)
+            }
+            (None, Some(placed))
+                if stamp.same_file_renamed(&placed) && self.has_content(&destination, &hash) =>
+            {
+                self.finish_rename(operation, &destination, probe)
+            }
+            _ => self.needs_review(
+                operation,
+                "the original and its library copy do not match what was journaled",
+            ),
+        }
+    }
+
+    fn has_content(&self, path: &Path, hash: &[u8; 32]) -> bool {
+        hash_file(path, &Control::new()).is_ok_and(|(found, _)| found == *hash)
+    }
+
+    fn needs_review(&self, operation: &mut Operation, reason: &str) -> Result<Outcome> {
+        self.escalate(operation, reason)?;
+        Ok(Outcome::Review)
+    }
+
+    fn finish_rename(
+        &self,
+        operation: &mut Operation,
+        destination: &Path,
+        probe: Probe<'_>,
+    ) -> Result<Outcome> {
+        let metadata = self.metadata_for(operation, destination, probe);
+        let outcome = self.catalog_installed(operation, &metadata, &Control::new())?;
+        Ok(Self::from_outcome(&outcome))
+    }
+
     fn recover_one(&self, operation: &mut Operation, probe: Probe<'_>) -> Result<Outcome> {
+        if operation.kind == OperationKind::RenameIn
+            && matches!(
+                operation.state,
+                OperationState::Planned | OperationState::Verified
+            )
+        {
+            return self.recover_rename(operation, probe);
+        }
         match operation.state {
             OperationState::Planned | OperationState::Copying => self.roll_back(
                 operation,
@@ -183,7 +272,6 @@ impl Vault<'_> {
                     });
                 match installed {
                     Some(destination) => {
-                        operation.state = OperationState::Installed;
                         let metadata = self.metadata_for(operation, &destination, probe);
                         let outcome =
                             self.catalog_installed(operation, &metadata, &Control::new())?;

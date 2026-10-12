@@ -11,6 +11,10 @@ use crate::{Result, VaultError};
 
 const BUFFER: usize = 1 << 20;
 
+/// Free space kept back from imports for the catalog, its journal, thumbnails
+/// and backups, which also grow while photos arrive.
+pub const SPACE_RESERVE: u64 = 512 << 20;
+
 /// Opens an existing regular file for reading without following a final symlink.
 pub fn open_regular(path: &Path) -> Result<(File, Metadata)> {
     let fd = rustix::fs::open(
@@ -125,6 +129,9 @@ pub fn copy_hashed(
     destination
         .sync_all()
         .map_err(VaultError::io("could not flush", destination_path))?;
+    // A later read-back should come from the disk, not from the page cache.
+    // The kernel may ignore the hint, which only makes the check cheaper.
+    let _ = rustix::fs::fadvise(&*destination, 0, None, rustix::fs::Advice::DontNeed);
     Ok((*hasher.finalize().as_bytes(), total))
 }
 
@@ -133,6 +140,27 @@ pub fn sync_dir(path: &Path) -> Result<()> {
     File::open(path)
         .and_then(|dir| dir.sync_all())
         .map_err(VaultError::io("could not flush folder", path))
+}
+
+/// Creates `dir` and any missing parents, and makes every new entry durable.
+///
+/// A new folder is only reachable after a crash once its parent has been
+/// flushed. Folders that already exist cost nothing.
+pub fn create_dir_all_durable(dir: &Path) -> Result<()> {
+    let mut missing = Vec::new();
+    for ancestor in dir.ancestors() {
+        if ancestor.exists() {
+            break;
+        }
+        missing.push(ancestor);
+    }
+    fs::create_dir_all(dir).map_err(VaultError::io("could not create", dir))?;
+    for created in missing {
+        if let Some(parent) = created.parent() {
+            sync_dir(parent)?;
+        }
+    }
+    Ok(())
 }
 
 /// Renames `from` to `to`, failing if `to` exists. Never overwrites.
@@ -147,6 +175,30 @@ pub fn rename_no_replace(from: &Path, to: &Path) -> io::Result<()> {
         }
         Err(errno) => Err(errno.into()),
     }
+}
+
+/// Bytes an unprivileged user can still write on the filesystem holding `path`.
+pub fn available_space(path: &Path) -> Result<u64> {
+    let stat = rustix::fs::statvfs(path).map_err(|errno| VaultError::Io {
+        action: "could not measure free space on",
+        path: path.to_path_buf(),
+        source: errno.into(),
+    })?;
+    Ok(stat.f_bavail.saturating_mul(stat.f_frsize))
+}
+
+/// Whether files can be removed from the folder `dir`: it is writable and its
+/// filesystem is not mounted read-only.
+pub fn can_remove_from(dir: &Path) -> bool {
+    let writable = rustix::fs::access(
+        dir,
+        rustix::fs::Access::WRITE_OK | rustix::fs::Access::EXEC_OK,
+    )
+    .is_ok();
+    let read_only = rustix::fs::statvfs(dir)
+        .map(|stat| stat.f_flag.contains(rustix::fs::StatVfsMountFlags::RDONLY))
+        .unwrap_or(false);
+    writable && !read_only
 }
 
 /// Creates a new file that must not already exist.
@@ -196,6 +248,27 @@ mod tests {
         assert_eq!(hash, *blake3::hash(&data).as_bytes());
         assert_eq!(hash_file(&target, &Control::new()).expect("hash").0, hash);
         assert!(create_new(&target).is_err());
+    }
+
+    #[test]
+    fn measures_free_space_and_removability() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        assert!(available_space(dir.path()).expect("space") > 0);
+        assert!(can_remove_from(dir.path()));
+        assert!(available_space(&dir.path().join("missing")).is_err());
+        assert!(!can_remove_from(&dir.path().join("missing")));
+    }
+
+    #[test]
+    fn creates_nested_folders_once() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let nested = dir.path().join("2023/07/01");
+        create_dir_all_durable(&nested).expect("create");
+        assert!(nested.is_dir());
+        create_dir_all_durable(&nested).expect("already there");
+        let file = dir.path().join("2023/file");
+        fs::write(&file, b"x").expect("write");
+        assert!(create_dir_all_durable(&file.join("inside")).is_err());
     }
 
     #[test]

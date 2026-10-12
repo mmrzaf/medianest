@@ -62,21 +62,36 @@ Every change to files on disk is journaled in the catalog before it happens:
 
 | State          | Meaning                                                        |
 |----------------|----------------------------------------------------------------|
-| Planned        | The operation is recorded; nothing has been written yet.       |
-| Copying        | A temporary `.medianest-<id>.part` file is being written.      |
-| Verified       | The temporary copy was synced, re-read and matched the hash.   |
-| Installed      | It was renamed into place without replacing anything.          |
-| Catalogued     | The catalog knows the new file.                                |
+| Planned        | The operation is recorded; nothing has been written yet. A copy also records the name of its temporary `.medianest-<id>.part` file. |
+| Verified       | The temporary copy was synced, re-read and matched the hash. A rename move records the file's hash and its new name instead. |
+| Catalogued     | The catalog knows the new file. A copy or rename move is completed by the same commit. |
 | AwaitingRemoval| A move could not remove the original and waits for you.         |
 | Removing       | The original is being moved aside and checked once more.       |
 | Completed      | Done.                                                          |
 
+The states Copying and Installed also exist. Version 1.0.0 wrote them; they
+are still read, and recovery treats them like the states around them. Newer
+versions leave them out because the file system shows whether a temporary
+copy was written or renamed into place, and each journal entry costs a
+durable write per photo.
+
+An operation has a kind: `CopyIn` (copy), `MoveIn` (copy, then remove the
+original) or `RenameIn` (move by renaming). A move of a file on the library's
+own filesystem is a rename: nothing is copied and no extra space is needed.
+The file is hashed once before it is renamed and must still be the same file
+(device, inode, size, modification time) afterwards. If the catalog cannot be
+updated, the file is renamed back. A file with other hard links, or on another
+filesystem, is copied and its original removed instead.
+
 When a library opens, unfinished operations are reconciled with what is on
 disk before anything else runs. Recovery only moves an operation forward
 when the bytes on disk prove the journaled state (for example, an installed
-file must hash to the expected value), cleans up temporary files that never
-became anything, and never deletes an original on its own. Anything it
-cannot decide goes to the review inbox.
+file must hash to the expected value) and cleans up temporary files that
+never became anything. Anything it
+cannot decide goes to the review inbox. An interrupted rename is decided by
+file identity: the original untouched means nothing happened, and the same
+file at its new name means the rename completed. Only the original of a move
+is ever removed, and only after the checks described above.
 
 ## Verification
 
