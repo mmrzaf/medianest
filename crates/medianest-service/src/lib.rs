@@ -38,7 +38,7 @@ pub use error::{Error, Result};
 pub use events::{Event, EventBus};
 pub use export::{ExportOptions, MetadataImportReport};
 pub use health::{CacheUsage, HealthReport, Issue, group_digits};
-pub use import::{ImportItem, ImportItemState, ImportOptions, ImportPlan};
+pub use import::{ImportItem, ImportItemState, ImportOptions, ImportPlan, SpaceCheck};
 pub use jobs::{JobContext, JobId, JobSnapshot, JobState, Lane};
 pub use maintenance::Settings;
 pub use pool::Task;

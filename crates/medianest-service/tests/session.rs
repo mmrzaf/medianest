@@ -9,8 +9,8 @@ use medianest_core::query::Query;
 use medianest_core::{ReviewKind, SourceKind};
 use medianest_media::MediaToolkit;
 use medianest_service::{
-    Event, ExportOptions, ImportItemState, ImportOptions, JobState, Lane, Library, OpenOptions,
-    ReviewAction, Settings,
+    Event, ExportOptions, ImportItem, ImportItemState, ImportOptions, JobState, Lane, Library,
+    OpenOptions, ReviewAction, Settings, SpaceCheck,
 };
 use medianest_vault::{Control, ImportMode};
 
@@ -172,7 +172,7 @@ fn import_plans_show_what_will_happen_and_imports_follow_them() {
 
     let again = session
         .library
-        .plan_import(&[card.clone()], &Control::new(), &|_, _| {})
+        .plan_import(std::slice::from_ref(&card), &Control::new(), &|_, _| {})
         .expect("plan again");
     assert_eq!(again.new_count, 0);
     // Including the copy that was a duplicate within the first selection.
@@ -193,7 +193,7 @@ fn moves_are_approved_through_the_review_inbox() {
     photo(&card.join("b.png"), 21);
     let plan = session
         .library
-        .plan_import(&[card.clone()], &Control::new(), &|_, _| {})
+        .plan_import(std::slice::from_ref(&card), &Control::new(), &|_, _| {})
         .expect("plan");
     let job = session.library.import(
         plan,
@@ -342,7 +342,7 @@ fn exports_and_metadata_round_trip() {
     photo(&card.join("IMG_20230701_101500.png"), 50);
     let plan = session
         .library
-        .plan_import(&[card.clone()], &Control::new(), &|_, _| {})
+        .plan_import(std::slice::from_ref(&card), &Control::new(), &|_, _| {})
         .expect("plan");
     session.library.wait_for_job(session.library.import(
         plan,
@@ -432,4 +432,52 @@ fn awaitable_tasks_run_on_worker_threads() {
         .library
         .run(|library| library.read(|db| db.stats()).map(|stats| stats.assets));
     assert_eq!(task.wait().expect("ran").expect("stats"), 0);
+}
+
+fn item(
+    size: u64,
+    state: ImportItemState,
+    on_library_volume: bool,
+    source_removable: bool,
+) -> ImportItem {
+    ImportItem {
+        path: PathBuf::from("/card/IMG.jpg"),
+        size,
+        metadata: None,
+        state,
+        destination: None,
+        on_library_volume,
+        source_removable,
+    }
+}
+
+#[test]
+fn space_needs_follow_the_import_mode() {
+    const MB: u64 = 1 << 20;
+    let reserve = medianest_vault::SPACE_RESERVE;
+    let items = [
+        item(100 * MB, ImportItemState::New, true, true),
+        item(300 * MB, ImportItemState::New, true, true),
+        item(50 * MB, ImportItemState::New, true, false),
+        item(70 * MB, ImportItemState::New, false, true),
+        item(900 * MB, ImportItemState::AlreadyInLibrary, true, true),
+        item(900 * MB, ImportItemState::DuplicateInSelection, true, true),
+    ];
+    // A copy keeps every original, so every new file needs room.
+    let copy = SpaceCheck::for_items(&items, ImportMode::Copy, 0);
+    assert_eq!(
+        (copy.required, copy.unremovable_bytes),
+        (520 * MB + reserve, 0)
+    );
+    // A move frees each original on the library's own disk as it goes, so
+    // only the largest is there twice. Originals that cannot be removed, and
+    // originals on another disk, still take their full space here.
+    let moved = SpaceCheck::for_items(&items, ImportMode::Move, 0);
+    assert_eq!(
+        (moved.required, moved.unremovable_bytes),
+        (420 * MB + reserve, 50 * MB)
+    );
+    let fits = SpaceCheck::for_items(&items, ImportMode::Move, 420 * MB + reserve);
+    assert!(!fits.is_short());
+    assert!(SpaceCheck::for_items(&items, ImportMode::Move, 420 * MB + reserve - 1).is_short());
 }

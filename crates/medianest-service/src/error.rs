@@ -25,6 +25,11 @@ pub enum Error {
     },
     #[error("{0}")]
     Invalid(String),
+    #[error(
+        "Stopped after {done} of {total} items: the library's disk is full. \
+         Free some space and import again to continue."
+    )]
+    DiskFull { done: u64, total: usize },
     #[error("the library was closed")]
     Closed,
     #[error("stopped")]

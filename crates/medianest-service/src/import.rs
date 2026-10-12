@@ -1,6 +1,7 @@
 //! Planning and running imports into the managed folder.
 
 use std::collections::HashMap;
+use std::os::unix::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 
 use medianest_catalog::ReviewSubject;
@@ -36,6 +37,11 @@ pub struct ImportItem {
     pub state: ImportItemState,
     /// Where it would go inside `Media/`.
     pub destination: Option<PathBytes>,
+    /// The original is on the same filesystem as the library, so moving it
+    /// frees the space it takes there.
+    pub on_library_volume: bool,
+    /// A move could remove the original afterwards.
+    pub source_removable: bool,
 }
 
 /// Everything the import dialog shows before anything is copied.
@@ -57,6 +63,53 @@ pub struct ImportPlan {
     pub date_range: Option<(i64, i64)>,
     /// New items per (year, month).
     pub months: Vec<(i32, u32, u64)>,
+}
+
+/// Whether an import fits on the library's disk.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct SpaceCheck {
+    /// Bytes that must be free, including the reserve for catalog and thumbnails.
+    pub required: u64,
+    pub available: u64,
+    /// Bytes on the library's own disk whose originals a move cannot remove,
+    /// so they take space twice.
+    pub unremovable_bytes: u64,
+}
+
+impl SpaceCheck {
+    #[must_use]
+    pub fn is_short(&self) -> bool {
+        self.available < self.required
+    }
+
+    /// What an import of `items` needs on the library's disk, given `available`.
+    ///
+    /// Moving only helps for originals on that same disk: each is removed
+    /// right after its copy, so just the largest is ever there twice.
+    /// Originals elsewhere free space elsewhere.
+    #[must_use]
+    pub fn for_items(items: &[ImportItem], mode: ImportMode, available: u64) -> Self {
+        let new = items
+            .iter()
+            .filter(|item| item.state == ImportItemState::New);
+        let sum = |items: &[&ImportItem]| items.iter().map(|item| item.size).sum::<u64>();
+        let (needed, unremovable_bytes) = match mode {
+            ImportMode::Copy => (sum(&new.collect::<Vec<_>>()), 0),
+            ImportMode::Move => {
+                let (local, elsewhere): (Vec<&ImportItem>, Vec<&ImportItem>) =
+                    new.partition(|item| item.on_library_volume);
+                let (removable, kept): (Vec<&ImportItem>, Vec<&ImportItem>) =
+                    local.into_iter().partition(|item| item.source_removable);
+                let largest = removable.iter().map(|item| item.size).max().unwrap_or(0);
+                (sum(&elsewhere) + sum(&kept) + largest, sum(&kept))
+            }
+        };
+        Self {
+            required: needed.saturating_add(medianest_vault::SPACE_RESERVE),
+            available,
+            unremovable_bytes,
+        }
+    }
 }
 
 /// How to run an import.
@@ -119,6 +172,9 @@ impl Library {
         progress: &(dyn Fn(u64, u64) + Sync),
     ) -> Result<ImportPlan> {
         let mut plan = ImportPlan::default();
+        let library_device = std::fs::metadata(self.layout().media())
+            .ok()
+            .map(|meta| meta.dev());
         let candidates = collect_candidates(paths, control, &mut plan.other_files)?;
         for path in paths {
             if self
@@ -188,6 +244,8 @@ impl Library {
                         metadata: None,
                         state: ImportItemState::Unreadable(error.to_string()),
                         destination: None,
+                        on_library_volume: false,
+                        source_removable: false,
                     });
                     continue;
                 }
@@ -246,12 +304,18 @@ impl Library {
                 ImportItemState::DuplicateInSelection => plan.duplicates_in_selection += 1,
                 ImportItemState::Unreadable(_) => plan.unreadable += 1,
             }
+            let on_library_volume = library_device.is_some_and(|device| {
+                std::fs::metadata(&path).is_ok_and(|meta| meta.dev() == device)
+            });
+            let source_removable = path.parent().is_some_and(medianest_vault::can_remove_from);
             plan.items.push(ImportItem {
                 path,
                 size,
                 metadata: Some(metadata),
                 state,
                 destination,
+                on_library_volume,
+                source_removable,
             });
         }
         let mut months: Vec<(i32, u32, u64)> =
@@ -259,6 +323,12 @@ impl Library {
         months.sort_unstable();
         plan.months = months;
         Ok(plan)
+    }
+
+    /// Checks that `plan` fits on the library's disk when run in `mode`.
+    pub fn space_check(&self, plan: &ImportPlan, mode: ImportMode) -> Result<SpaceCheck> {
+        let available = medianest_vault::available_space(&self.layout().media())?;
+        Ok(SpaceCheck::for_items(&plan.items, mode, available))
     }
 
     /// Imports the new items of a plan. Returns the job doing it.
@@ -331,6 +401,14 @@ impl Library {
                             awaiting += u64::from(awaiting_removal.is_some());
                         }
                         Err(VaultError::Cancelled) => return Err(Error::Cancelled),
+                        Err(VaultError::NoSpace(_)) => {
+                            library.poke_thumbnails();
+                            library.emit(Event::ContentChanged);
+                            return Err(Error::DiskFull {
+                                done: imported + existing + failed,
+                                total: items.len(),
+                            });
+                        }
                         Err(error) => {
                             tracing::warn!(path = %item.path.display(), %error, "import failed");
                             library.record_failed_import(&item.path, &error.to_string())?;
