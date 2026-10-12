@@ -18,6 +18,7 @@ use crate::actions;
 use crate::context::Ctx;
 use crate::grid::PhotoGrid;
 use crate::i18n::tr;
+use crate::player::PlayerStream;
 use crate::textures::{self, Pixels};
 use crate::util;
 use info::InfoPanel;
@@ -683,7 +684,7 @@ impl Viewer {
                 }
                 match path {
                     Ok(path) => {
-                        let media = gtk::MediaFile::for_filename(&path);
+                        let media = PlayerStream::for_file(&path);
                         media.set_muted(this.ctx.config.borrow().start_muted);
                         this.video.set_media_stream(Some(&media));
                     }
@@ -975,7 +976,7 @@ impl Viewer {
             }
             match video {
                 Ok(Some(path)) => {
-                    let media = gtk::MediaFile::for_filename(&path);
+                    let media = PlayerStream::for_file(&path);
                     media.set_muted(this.ctx.config.borrow().start_muted);
                     let picture = this.live_picture.clone();
                     media.connect_ended_notify(move |media| {

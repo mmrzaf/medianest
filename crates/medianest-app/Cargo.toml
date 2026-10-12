@@ -20,11 +20,17 @@ shumate = { package = "libshumate", version = "0.7" }
 async-channel.workspace = true
 chrono.workspace = true
 gettext-rs = { version = "0.7", features = ["gettext-system"] }
+gstreamer.workspace = true
+gstreamer-app.workspace = true
+gstreamer-video.workspace = true
 jpeg-decoder.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
 
 [build-dependencies]
 glib-build-tools = "0.21"

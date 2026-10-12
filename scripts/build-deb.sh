@@ -30,7 +30,7 @@ Architecture: $arch
 Maintainer: mmrzaf <mohammr.farkhonde12@sharif.edu>
 Installed-Size: $size
 Depends: $depends
-Recommends: ffmpeg, libgtk-4-media-gstreamer, gstreamer1.0-plugins-good, gstreamer1.0-libav, librsvg2-common
+Recommends: ffmpeg, gstreamer1.0-plugins-base, gstreamer1.0-plugins-good, gstreamer1.0-plugins-bad, gstreamer1.0-libav, librsvg2-common
 Section: graphics
 Priority: optional
 Homepage: https://github.com/mmrzaf/medianest

@@ -10,6 +10,7 @@ mod grid;
 mod i18n;
 mod library_view;
 mod pages;
+mod player;
 mod textures;
 mod thumb;
 mod util;
