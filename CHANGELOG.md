@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Move removes each original as soon as its copy is verified, instead of
+  keeping every original until you approve removal. Originals that changed
+  or cannot be removed safely are kept and shown in Review.
+
 ## 1.0.0 — 2026-10-11
 
 First release of the rewritten MediaNest.

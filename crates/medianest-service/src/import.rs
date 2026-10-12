@@ -358,7 +358,7 @@ impl Library {
                     parts.push(format!("{failed} could not be imported"));
                 }
                 if awaiting > 0 {
-                    parts.push(format!("{awaiting} originals wait for your approval"));
+                    parts.push(format!("{awaiting} originals were kept for your review"));
                 }
                 Ok(parts.join(" · "))
             },

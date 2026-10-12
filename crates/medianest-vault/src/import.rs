@@ -21,7 +21,9 @@ use crate::{Result, Vault, VaultError};
 pub enum ImportMode {
     /// Originals stay where they are.
     Copy,
-    /// Originals are removed later, after the user approves.
+    /// Each original is removed as soon as its library copy is verified, so
+    /// both copies never take up space for longer than one file. An original
+    /// that cannot be removed safely is kept and left for the user to decide.
     Move,
 }
 
@@ -34,7 +36,8 @@ pub enum ImportOutcome {
         file: FileId,
         relpath: PathBytes,
         new_asset: bool,
-        /// For moves: the operation waiting for removal approval.
+        /// For moves: the operation whose original could not be removed and
+        /// waits for the user to decide.
         awaiting_removal: Option<OperationUuid>,
     },
     /// Identical content is already in the managed folder; nothing was copied.
@@ -93,8 +96,8 @@ impl Vault<'_> {
     /// The copy is written next to its destination under a temporary name,
     /// synced, re-read and compared with the original's hash, then installed
     /// with a rename that never replaces an existing file. The original is
-    /// only read. For [`ImportMode::Move`] the original's removal is staged
-    /// for the user to approve.
+    /// only read. For [`ImportMode::Move`] it is then removed, after checks
+    /// that it is still the file that was copied.
     pub fn import_file(
         &self,
         source: &Path,
@@ -210,7 +213,7 @@ impl Vault<'_> {
         &self,
         operation: &mut Operation,
         metadata: &AssetMetadata,
-        _control: &Control,
+        control: &Control,
     ) -> Result<ImportOutcome> {
         let hash = operation.hash.ok_or(VaultError::InvalidState)?;
         let temp = operation
@@ -234,6 +237,7 @@ impl Vault<'_> {
                         asset: existing,
                         awaiting_removal: None,
                     },
+                    control,
                 );
             }
         }
@@ -244,7 +248,7 @@ impl Vault<'_> {
         self.save(operation)?;
         hit(self.faults, Checkpoint::AfterInstall)?;
 
-        self.catalog_installed(operation, metadata)
+        self.catalog_installed(operation, metadata, control)
     }
 
     /// Records an installed copy in the catalog, then finishes the operation.
@@ -252,6 +256,7 @@ impl Vault<'_> {
         &self,
         operation: &mut Operation,
         metadata: &AssetMetadata,
+        control: &Control,
     ) -> Result<ImportOutcome> {
         let hash = operation.hash.ok_or(VaultError::InvalidState)?;
         let relpath = operation
@@ -304,14 +309,17 @@ impl Vault<'_> {
                 new_asset,
                 awaiting_removal: None,
             },
+            control,
         )
     }
 
-    /// Completes a copy, or stages a move for approval.
+    /// Completes a copy, or completes a move by removing the original. When
+    /// the original cannot be removed safely it is kept and a review is opened.
     pub(crate) fn finish(
         &self,
         operation: &mut Operation,
         outcome: ImportOutcome,
+        control: &Control,
     ) -> Result<ImportOutcome> {
         match operation.kind {
             OperationKind::CopyIn => {
@@ -322,20 +330,19 @@ impl Vault<'_> {
             OperationKind::MoveIn => {
                 operation.state = OperationState::AwaitingRemoval;
                 self.save(operation)?;
-                let source = operation.source_path.clone();
-                let detail = serde_json::json!({
-                    "source": source.as_ref().map(PathBytes::display),
-                    "copy": operation.dest_relpath.as_ref().map(PathBytes::display),
-                    "size": operation.source_stamp.map(|stamp| stamp.size),
-                });
                 let uuid = operation.uuid;
-                self.write(|writer| {
-                    writer.open_review(
-                        ReviewKind::PendingRemoval,
-                        ReviewSubject::Operation(uuid, source.as_ref()),
-                        &detail,
-                    )
-                })?;
+                match self.approve_removal(uuid, control) {
+                    Ok(()) => return Ok(outcome),
+                    Err(error @ (VaultError::Cancelled | VaultError::Interrupted(_))) => {
+                        return Err(error);
+                    }
+                    Err(error) => {
+                        tracing::warn!(operation = %uuid, %error, "original kept after a move");
+                        operation.error = Some(error.to_string());
+                        self.save(operation)?;
+                    }
+                }
+                self.open_removal_review(operation)?;
                 Ok(match outcome {
                     ImportOutcome::Imported {
                         asset,
@@ -359,6 +366,26 @@ impl Vault<'_> {
                 })
             }
         }
+    }
+
+    /// Asks the user what to do with an original that was not removed.
+    pub(crate) fn open_removal_review(&self, operation: &Operation) -> Result<()> {
+        let uuid = operation.uuid;
+        let source = operation.source_path.clone();
+        let detail = serde_json::json!({
+            "source": source.as_ref().map(PathBytes::display),
+            "copy": operation.dest_relpath.as_ref().map(PathBytes::display),
+            "size": operation.source_stamp.map(|stamp| stamp.size),
+            "reason": operation.error,
+        });
+        self.write(|writer| {
+            writer.open_review(
+                ReviewKind::PendingRemoval,
+                ReviewSubject::Operation(uuid, source.as_ref()),
+                &detail,
+            )
+        })?;
+        Ok(())
     }
 
     /// Moves a verified temporary copy to its final name without replacing

@@ -39,8 +39,8 @@ fn explain(kind: ReviewKind) -> String {
             tr("These could not be imported. Try again once the problem is fixed.")
         }
         ReviewKind::PendingRemoval => tr(
-            "These were moved into the library. Their copies are verified; approve removing the \
-             originals, or keep them.",
+            "These were copied into the library, but the originals could not be removed safely. \
+             Remove them or keep them.",
         ),
         ReviewKind::InterruptedOperation => tr(
             "MediaNest was stopped while working on these. Nothing was lost; check them again to finish.",

@@ -23,7 +23,7 @@ pub struct RecoveryReport {
     pub completed: u32,
     /// Interrupted before anything was installed; cleaned up, originals untouched.
     pub rolled_back: u32,
-    /// Moves waiting for the user to approve removing originals.
+    /// Moves whose original could not be removed and wait for the user.
     pub awaiting_removal: u32,
     /// Situations recovery could not decide; listed in the review inbox.
     pub needs_review: u32,
@@ -185,7 +185,8 @@ impl Vault<'_> {
                     Some(destination) => {
                         operation.state = OperationState::Installed;
                         let metadata = self.metadata_for(operation, &destination, probe);
-                        let outcome = self.catalog_installed(operation, &metadata)?;
+                        let outcome =
+                            self.catalog_installed(operation, &metadata, &Control::new())?;
                         Ok(Self::from_outcome(&outcome))
                     }
                     None => self.roll_back(
@@ -205,7 +206,8 @@ impl Vault<'_> {
                 match destination {
                     Some(destination) => {
                         let metadata = self.metadata_for(operation, &destination, probe);
-                        let outcome = self.catalog_installed(operation, &metadata)?;
+                        let outcome =
+                            self.catalog_installed(operation, &metadata, &Control::new())?;
                         Ok(Self::from_outcome(&outcome))
                     }
                     None => {
@@ -233,23 +235,12 @@ impl Vault<'_> {
                         new_asset: false,
                         awaiting_removal: None,
                     },
+                    &Control::new(),
                 )?;
                 Ok(Self::from_outcome(&outcome))
             }
             OperationState::AwaitingRemoval => {
-                let uuid = operation.uuid;
-                let source = operation.source_path.clone();
-                let detail = serde_json::json!({
-                    "source": source.as_ref().map(PathBytes::display),
-                    "copy": operation.dest_relpath.as_ref().map(PathBytes::display),
-                });
-                self.write(|writer| {
-                    writer.open_review(
-                        ReviewKind::PendingRemoval,
-                        ReviewSubject::Operation(uuid, source.as_ref()),
-                        &detail,
-                    )
-                })?;
+                self.open_removal_review(operation)?;
                 Ok(Outcome::Awaiting)
             }
             OperationState::Removing => {

@@ -5,11 +5,11 @@ use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 
 use medianest_catalog::{Writer, flags};
-use medianest_core::{FileStatus, OperationState, ReviewKind, SourceKind};
+use medianest_core::{FileStatus, OperationState, OperationUuid, ReviewKind, SourceKind};
 use medianest_media::MediaToolkit;
 use medianest_vault::{
-    Checkpoint, Control, CrashAt, ImportMode, ImportOutcome, Layout, LinkedPolicy, Vault,
-    VaultError,
+    Checkpoint, Control, CrashAt, ImportMode, ImportOutcome, Layout, LinkedPolicy, RecoveryReport,
+    Vault, VaultError,
 };
 
 struct Library {
@@ -166,37 +166,58 @@ fn different_files_with_the_same_name_both_survive() {
     assert_eq!(lib.managed_files().len(), 2);
 }
 
+/// Crashes a move after the copy is catalogued, then lets `tamper` change the
+/// original before recovery tries to remove it.
+fn stage_move(lib: &Library, original: &Path, tamper: impl FnOnce()) -> RecoveryReport {
+    let metadata = lib.toolkit.probe(original).expect("probe");
+    let crashing = Vault {
+        layout: &lib.layout,
+        catalog: &lib.writer,
+        faults: &CrashAt(Checkpoint::AfterCatalogued),
+    };
+    let result = crashing.import_file(original, &metadata, ImportMode::Move, None, &Control::new());
+    assert!(
+        matches!(result, Err(VaultError::Interrupted(_))),
+        "{result:?}"
+    );
+    tamper();
+    lib.vault().recover(&lib.probe_fn()).expect("recover")
+}
+
+fn assert_original_kept_for_review(lib: &Library, original: &Path) -> OperationUuid {
+    assert!(original.exists(), "the original is kept");
+    let writer = lib.writer.lock().unwrap();
+    assert_eq!(
+        writer
+            .reviews(Some(ReviewKind::PendingRemoval), 10)
+            .expect("reviews")
+            .len(),
+        1
+    );
+    let unfinished = writer.unfinished_operations().expect("ops");
+    assert_eq!(unfinished.len(), 1);
+    assert_eq!(unfinished[0].state, OperationState::AwaitingRemoval);
+    unfinished[0].uuid
+}
+
 #[test]
-fn moves_wait_for_approval_then_remove_the_original() {
+fn moves_remove_the_original_once_the_copy_is_verified() {
     let lib = Library::new();
     let original = lib.photo("move.png", 6);
     let outcome = lib.import(&original, ImportMode::Move).expect("import");
     let ImportOutcome::Imported {
-        awaiting_removal: Some(operation),
+        awaiting_removal: None,
         ..
     } = outcome
     else {
-        panic!("expected a staged move, got {outcome:?}");
+        panic!("expected a finished move, got {outcome:?}");
     };
-    assert!(original.exists(), "nothing is removed before approval");
-    let reviews = lib
-        .writer
-        .lock()
-        .unwrap()
-        .reviews(Some(ReviewKind::PendingRemoval), 10)
-        .expect("reviews");
-    assert_eq!(reviews.len(), 1);
-    lib.vault()
-        .approve_removal(operation, &Control::new())
-        .expect("approve");
     assert!(!original.exists());
     assert_eq!(lib.managed_files().len(), 1);
     let writer = lib.writer.lock().unwrap();
     assert!(writer.reviews(None, 10).expect("reviews").is_empty());
-    assert_eq!(
-        writer.operation(operation).expect("op").state,
-        OperationState::Completed
-    );
+    assert!(writer.unfinished_operations().expect("ops").is_empty());
+    drop(writer);
     assert!(
         walk(&lib.outside).is_empty(),
         "no leftovers next to the original"
@@ -204,41 +225,48 @@ fn moves_wait_for_approval_then_remove_the_original() {
 }
 
 #[test]
-fn removal_refuses_a_replaced_original_even_with_identical_bytes() {
+fn moving_a_duplicate_removes_the_original_too() {
     let lib = Library::new();
-    let original = lib.photo("replace.png", 7);
-    let ImportOutcome::Imported {
-        awaiting_removal: Some(operation),
-        ..
-    } = lib.import(&original, ImportMode::Move).expect("import")
-    else {
-        panic!("expected move");
-    };
-    let bytes = fs::read(&original).expect("read");
-    fs::remove_file(&original).expect("remove");
-    std::thread::sleep(std::time::Duration::from_millis(20));
-    fs::write(&original, &bytes).expect("recreate");
-    let result = lib.vault().approve_removal(operation, &Control::new());
-    assert!(
-        matches!(result, Err(VaultError::SourceReplaced(_))),
-        "{result:?}"
-    );
-    assert!(original.exists());
+    let first = lib.photo("first.png", 15);
+    lib.import(&first, ImportMode::Copy).expect("copy");
+    let second = lib.photo("second.png", 15);
+    let outcome = lib.import(&second, ImportMode::Move).expect("move");
+    assert!(matches!(
+        outcome,
+        ImportOutcome::AlreadyInLibrary {
+            awaiting_removal: None,
+            ..
+        }
+    ));
+    assert!(!second.exists());
+    assert!(first.exists());
+    assert_eq!(lib.managed_files().len(), 1);
 }
 
 #[test]
-fn removal_refuses_an_edited_original() {
+fn a_replaced_original_is_kept_even_with_identical_bytes() {
+    let lib = Library::new();
+    let original = lib.photo("replace.png", 7);
+    let report = stage_move(&lib, &original, || {
+        let bytes = fs::read(&original).expect("read");
+        fs::remove_file(&original).expect("remove");
+        std::thread::sleep(std::time::Duration::from_millis(20));
+        fs::write(&original, &bytes).expect("recreate");
+    });
+    assert_eq!(report.awaiting_removal, 1);
+    assert_original_kept_for_review(&lib, &original);
+}
+
+#[test]
+fn an_edited_original_is_kept_until_the_user_decides() {
     let lib = Library::new();
     let original = lib.photo("edit.png", 8);
-    let ImportOutcome::Imported {
-        awaiting_removal: Some(operation),
-        ..
-    } = lib.import(&original, ImportMode::Move).expect("import")
-    else {
-        panic!("expected move");
-    };
-    std::thread::sleep(std::time::Duration::from_millis(20));
-    write_photo(&original, 9);
+    let report = stage_move(&lib, &original, || {
+        std::thread::sleep(std::time::Duration::from_millis(20));
+        write_photo(&original, 9);
+    });
+    assert_eq!(report.awaiting_removal, 1);
+    let operation = assert_original_kept_for_review(&lib, &original);
     assert!(
         lib.vault()
             .approve_removal(operation, &Control::new())
@@ -319,12 +347,22 @@ fn recovery_after_a_crash_at_any_checkpoint_keeps_the_invariant() {
                 "{checkpoint:?}: recovery is idempotent"
             );
 
-            assert_eq!(
-                fs::read(&original).expect("original survives"),
-                bytes,
-                "{mode:?} {checkpoint:?}"
-            );
             let files = lib.managed_files();
+            if original.exists() {
+                assert_eq!(
+                    fs::read(&original).expect("original survives"),
+                    bytes,
+                    "{mode:?} {checkpoint:?}"
+                );
+            } else {
+                assert_eq!(mode, ImportMode::Move, "{checkpoint:?}");
+                assert_eq!(
+                    files.len(),
+                    1,
+                    "{checkpoint:?}: a removed original has a copy"
+                );
+                assert_eq!(fs::read(&files[0]).expect("copy"), bytes, "{checkpoint:?}");
+            }
             assert!(
                 files.iter().all(|path| !path
                     .file_name()
@@ -347,17 +385,10 @@ fn recovery_after_a_crash_at_any_checkpoint_keeps_the_invariant() {
                 n => panic!("{checkpoint:?}: {n} managed files"),
             }
             let unfinished = writer.unfinished_operations().expect("ops");
-            match mode {
-                ImportMode::Copy => {
-                    assert!(unfinished.is_empty(), "{checkpoint:?}: {unfinished:?}")
-                }
-                ImportMode::Move => assert!(
-                    unfinished
-                        .iter()
-                        .all(|op| op.state == OperationState::AwaitingRemoval),
-                    "{checkpoint:?}: {unfinished:?}"
-                ),
-            }
+            assert!(
+                unfinished.is_empty(),
+                "{mode:?} {checkpoint:?}: {unfinished:?}"
+            );
             drop(writer);
             let _ = first;
         }
@@ -365,25 +396,25 @@ fn recovery_after_a_crash_at_any_checkpoint_keeps_the_invariant() {
 }
 
 #[test]
-fn recovery_finishes_an_approved_removal_interrupted_after_the_rename() {
+fn recovery_finishes_a_removal_interrupted_after_the_rename() {
     let lib = Library::new();
     let original = lib.photo("aside.png", 14);
-    let ImportOutcome::Imported {
-        awaiting_removal: Some(operation),
-        ..
-    } = lib.import(&original, ImportMode::Move).expect("import")
-    else {
-        panic!("expected move");
-    };
+    let metadata = lib.toolkit.probe(&original).expect("probe");
     let crashing = Vault {
         layout: &lib.layout,
         catalog: &lib.writer,
         faults: &CrashAt(Checkpoint::AfterAside),
     };
+    let result = crashing.import_file(
+        &original,
+        &metadata,
+        ImportMode::Move,
+        None,
+        &Control::new(),
+    );
     assert!(
-        crashing
-            .approve_removal(operation, &Control::new())
-            .is_err()
+        matches!(result, Err(VaultError::Interrupted(_))),
+        "{result:?}"
     );
     assert!(!original.exists());
     assert_eq!(

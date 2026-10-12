@@ -22,8 +22,8 @@ and runs on Wayland and X11.
   hundreds of thousands of items.
 - **Safe imports.** See what an import would do before anything is copied:
   how many new items, which are already in the library, which have no
-  reliable date. Copy, move (originals are removed only after you approve),
-  or keep a folder in place and watch it.
+  reliable date. Copy, move (each original is removed as soon as its copy
+  is verified, so two copies never pile up), or keep a folder in place and watch it.
 - **Organise.** Albums, smart albums that fill themselves from a search,
   tags, ratings, favorites, captions, hiding, rotation and date
   corrections — for one item or a thousand, with undo.
@@ -115,8 +115,8 @@ MediaNest is built around not losing photos:
 - Originals are only ever read. Edits live in the catalog.
 - Files are installed with no-replace renames, so nothing is overwritten.
 - Each copy is hashed (BLAKE3) and compared with the original before it
-  counts. Moving removes the original only after you approve it, and only if
-  it is still exactly the file that was copied.
+  counts. Moving removes the original only if it is still exactly the file that was
+  copied, and keeps it for your review otherwise.
 - Every multi-step operation is journaled; an interruption at any moment —
   a crash, a pulled cable, a power cut — is completed or rolled back the
   next time the library opens. The test suite simulates a crash at every step.

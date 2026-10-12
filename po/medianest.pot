@@ -572,9 +572,8 @@ msgstr[1] ""
 
 #: crates/medianest-app/src/dialogs/import.rs:557
 msgid ""
-"Each original is copied and checked first. Removing the "
-"originals                              waits in Review until you approve it, "
-"so nothing is lost by mistake."
+"Each original is copied and checked first, then removed right away to free "
+"its space. An original that changed meanwhile is kept and shown in Review."
 msgstr ""
 
 #: crates/medianest-app/src/dialogs/import.rs:560
@@ -1759,8 +1758,8 @@ msgstr ""
 
 #: crates/medianest-app/src/pages/review.rs:42
 msgid ""
-"These were moved into the library. Their copies are verified; approve "
-"removing the              originals, or keep them."
+"These were copied into the library, but the originals could not be removed "
+"safely. Remove them or keep them."
 msgstr ""
 
 #: crates/medianest-app/src/pages/review.rs:46

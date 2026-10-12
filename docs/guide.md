@@ -30,8 +30,9 @@ Then choose how to import:
 
 - **Copy** keeps the originals where they are. Use this for memory cards you
   will format in the camera, and whenever in doubt.
-- **Move** copies and checks each file first. Removing the originals waits
-  in **Review** until you approve it.
+- **Move** copies and checks each file, then removes its original right
+  away, so you never need room for two copies of the whole import. An
+  original that changed in the meantime is kept and listed in **Review**.
 - **Keep in Place** does not copy anything: the folder is linked and
   watched, and its photos appear in your library while the folder is
   available.
@@ -143,8 +144,8 @@ it from the library (its files are not touched).
 - **Changed files** — content that differs from what was imported. Use the
   new version if you edited the file on purpose; otherwise restore it from a
   backup.
-- **Originals waiting for removal** — after a move, approve removing each
-  original or keep it.
+- **Originals waiting for removal** — originals a move could not remove
+  safely; remove each one or keep it.
 - **Interrupted operations** and **failed imports** — check again or retry.
 
 **Similar Photos** finds bursts and near-duplicates and suggests which to

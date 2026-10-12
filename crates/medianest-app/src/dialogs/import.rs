@@ -554,8 +554,8 @@ impl ImportDialog {
                     ),
                     Mode::Move => (
                         tr(
-                            "Each original is copied and checked first. Removing the originals \
-                             waits in Review until you approve it, so nothing is lost by mistake.",
+                            "Each original is copied and checked first, then removed right away to free \
+                             its space. An original that changed meanwhile is kept and shown in Review.",
                         ),
                         trn("_Move {} Item", "_Move {} Items", new_count + already),
                         new_count + already > 0,

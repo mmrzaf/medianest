@@ -154,7 +154,7 @@ struct ImportArgs {
     /// Files or folders to import.
     #[arg(required = true)]
     paths: Vec<PathBuf>,
-    /// Remove originals after verified copying (each needs approval in `review`).
+    /// Remove each original right after its copy is verified (to free space).
     #[arg(long = "move")]
     move_originals: bool,
     /// Show what would happen without copying anything.

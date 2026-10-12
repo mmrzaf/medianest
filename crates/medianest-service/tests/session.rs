@@ -203,19 +203,16 @@ fn moves_are_approved_through_the_review_inbox() {
     );
     let finished = session.library.wait_for_job(job).expect("job");
     assert!(
-        finished
-            .summary
-            .contains("2 originals wait for your approval"),
+        !finished.summary.contains("kept for your review"),
         "{}",
         finished.summary
     );
     let counts = session.library.review_counts().expect("counts");
-    assert!(counts.contains(&(ReviewKind::PendingRemoval, 2)));
-    let (done, errors) = session
-        .library
-        .resolve_all(ReviewKind::PendingRemoval, ReviewAction::Primary)
-        .expect("approve");
-    assert_eq!((done, errors.len()), (2, 0));
+    assert!(
+        !counts
+            .iter()
+            .any(|(kind, _)| *kind == ReviewKind::PendingRemoval)
+    );
     assert!(!card.join("a.png").exists() && !card.join("b.png").exists());
     assert_eq!(session.timeline("").len(), 2);
 }

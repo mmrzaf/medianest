@@ -67,7 +67,7 @@ Every change to files on disk is journaled in the catalog before it happens:
 | Verified       | The temporary copy was synced, re-read and matched the hash.   |
 | Installed      | It was renamed into place without replacing anything.          |
 | Catalogued     | The catalog knows the new file.                                |
-| AwaitingRemoval| A move is waiting for you to approve removing the original.    |
+| AwaitingRemoval| A move could not remove the original and waits for you.         |
 | Removing       | The original is being moved aside and checked once more.       |
 | Completed      | Done.                                                          |
 

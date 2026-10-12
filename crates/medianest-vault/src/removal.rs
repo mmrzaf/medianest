@@ -1,4 +1,4 @@
-//! Removing originals after a move, once the user approves.
+//! Removing originals after a move.
 
 use std::fs;
 use std::path::Path;
@@ -108,7 +108,7 @@ impl Vault<'_> {
         if let Some(parent) = aside.parent() {
             sync_dir(parent)?;
         }
-        tracing::info!(operation = %operation.uuid, "original removed after approval");
+        tracing::info!(operation = %operation.uuid, "original removed after a move");
         self.complete_removal(operation)
     }
 

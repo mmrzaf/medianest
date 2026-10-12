@@ -7,8 +7,9 @@
 //! - Copies are verified byte for byte (BLAKE3) before they count.
 //! - Each durable step is journaled first, so an interruption at any point can
 //!   be recovered without guessing.
-//! - Originals are removed only after explicit approval, after re-checking
-//!   that they are still the very file that was copied.
+//! - Originals are removed only after the copy is verified and they are
+//!   re-checked to still be the very file that was copied; otherwise they are
+//!   kept for the user to decide.
 //! - Deleting means moving to the system trash, which can be undone.
 
 mod backup;
