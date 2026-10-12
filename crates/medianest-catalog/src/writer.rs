@@ -1398,7 +1398,7 @@ fn save_operation_in(connection: &Connection, operation: &Operation) -> Result<(
          source_size, source_mtime_ns, source_ctime_ns, source_btime_ns, source_device, source_inode, \
          hash, asset_id, file_id, batch, error, created_ms, updated_ms) \
          VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20) \
-         ON CONFLICT (uuid) DO UPDATE SET state = ?3, source_path = ?4, temp_path = ?5, dest_relpath = ?6, \
+         ON CONFLICT (uuid) DO UPDATE SET kind = ?2, state = ?3, source_path = ?4, temp_path = ?5, dest_relpath = ?6, \
          aside_path = ?7, source_size = ?8, source_mtime_ns = ?9, source_ctime_ns = ?10, source_btime_ns = ?11, \
          source_device = ?12, source_inode = ?13, hash = ?14, asset_id = ?15, file_id = ?16, batch = ?17, \
          error = ?18, updated_ms = ?20",
