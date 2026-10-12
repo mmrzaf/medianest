@@ -54,7 +54,7 @@ impl Ctx {
         toasts: adw::ToastOverlay,
         nav: adw::NavigationView,
     ) -> Rc<Self> {
-        Rc::new(Self {
+        let ctx = Rc::new(Self {
             loader: ThumbnailLoader::new(library.clone()),
             filmstrips: Filmstrips::new(library.clone()),
             library,
@@ -65,7 +65,9 @@ impl Ctx {
             undo: RefCell::new(None),
             config_listeners: RefCell::default(),
             navigate: RefCell::new(None),
-        })
+        });
+        crate::resources::watch(&ctx);
+        ctx
     }
 
     /// Runs blocking library work off the main thread.

@@ -8,6 +8,7 @@ use gtk::subclass::prelude::*;
 use gtk::{gdk, glib};
 
 use super::pipeline::{Event, Frame, Info, Pipeline};
+use crate::i18n::tr;
 
 mod imp {
     use std::cell::{Cell, RefCell};
@@ -191,6 +192,13 @@ impl PlayerStream {
                 stream.imp().handle(event);
             }
         });
+        if crate::resources::low() {
+            stream.set_error(glib::Error::new(
+                gdk::GLError::NotAvailable,
+                &tr("Too many files are open right now; videos cannot open"),
+            ));
+            return stream;
+        }
         match Pipeline::open(path, true, handler) {
             Ok(pipeline) => *stream.imp().pipeline.borrow_mut() = Some(pipeline),
             Err(error) => stream.set_error(error),
