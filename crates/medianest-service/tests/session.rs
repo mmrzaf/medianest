@@ -128,6 +128,40 @@ fn linking_a_folder_indexes_it_and_makes_thumbnails() {
 }
 
 #[test]
+fn videos_get_a_hover_filmstrip() {
+    if !MediaToolkit::in_process().video.available() {
+        return;
+    }
+    let session = Session::new();
+    let videos = session.folder("Videos");
+    let clip =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../medianest-media/tests/fixtures/clip.mp4");
+    fs::copy(clip, videos.join("clip.mp4")).expect("copy clip");
+    let (_, job) = session.library.add_folder(&videos).expect("add folder");
+    let finished = session.library.wait_for_job(job).expect("job");
+    assert_eq!(finished.state, JobState::Completed, "{finished:?}");
+
+    let items = session.timeline("");
+    assert_eq!(items.len(), 1);
+    let strip = session.library.filmstrip(items[0].id).expect("filmstrip");
+    assert!(strip.is_file());
+    let (width, _) = image::image_dimensions(&strip).expect("strip size");
+    assert_eq!(width % medianest_media::FILMSTRIP_FRAMES, 0);
+}
+
+#[test]
+fn photos_have_no_filmstrip() {
+    let session = Session::new();
+    let pictures = session.folder("Pictures");
+    photo(&pictures.join("IMG_20230701_101500.png"), 1);
+    let (_, job) = session.library.add_folder(&pictures).expect("add folder");
+    session.library.wait_for_job(job).expect("job");
+    let items = session.timeline("");
+    assert_eq!(items.len(), 1);
+    assert!(session.library.filmstrip(items[0].id).is_err());
+}
+
+#[test]
 fn import_plans_show_what_will_happen_and_imports_follow_them() {
     let session = Session::new();
     let card = session.folder("Card/DCIM");

@@ -18,6 +18,6 @@ pub use ffmpeg::{ToolError, VideoInfo, VideoTools};
 pub use probe::{MediaToolkit, ProbeError};
 pub use sniff::{detect, has_media_extension};
 pub use thumbs::{
-    PREVIEW_LONG_SIDE, THUMB_SHORT_SIDE, ThumbnailCache, ThumbnailError, ThumbnailFacts,
-    ThumbnailSource, cache_home, hash_distance, render,
+    FILMSTRIP_FRAMES, PREVIEW_LONG_SIDE, THUMB_SHORT_SIDE, ThumbnailCache, ThumbnailError,
+    ThumbnailFacts, ThumbnailSource, cache_home, hash_distance, render,
 };

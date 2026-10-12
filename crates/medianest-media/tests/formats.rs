@@ -3,7 +3,7 @@
 use std::path::{Path, PathBuf};
 
 use medianest_core::{AssetUuid, Confidence, DateSource, Format, MediaKind};
-use medianest_media::{MediaToolkit, Size, ThumbnailCache, ThumbnailSource};
+use medianest_media::{FILMSTRIP_FRAMES, MediaToolkit, Size, ThumbnailCache, ThumbnailSource};
 
 fn fixture(name: &str) -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -115,6 +115,86 @@ fn video_metadata_comes_from_ffprobe() {
         )
         .expect("video thumbnail");
     assert!(cache.thumbnail_path(uuid).is_file());
+}
+
+#[test]
+fn video_filmstrip_holds_equal_frames_and_is_cached() {
+    let toolkit = toolkit();
+    if !toolkit.video.available() {
+        return;
+    }
+    let dir = tempfile::tempdir().expect("tempdir");
+    let cache = ThumbnailCache::with_root(dir.path().to_path_buf());
+    let uuid = AssetUuid::new();
+    let clip = fixture("clip.mp4");
+    let source = ThumbnailSource {
+        path: &clip,
+        format: Format::Mp4,
+        orientation: 1,
+        motion_video_length: None,
+        duration_ms: Some(2000),
+    };
+    let path = cache
+        .filmstrip(uuid, &source, &toolkit.video)
+        .expect("filmstrip");
+    assert_eq!(path, cache.filmstrip_path(uuid));
+    let (width, height) = image::image_dimensions(&path).expect("strip size");
+    assert_eq!(width % FILMSTRIP_FRAMES, 0);
+    assert!(
+        width / FILMSTRIP_FRAMES >= height / 4,
+        "cells are not slivers"
+    );
+
+    let again = cache
+        .filmstrip(uuid, &source, &toolkit.video)
+        .expect("cached filmstrip");
+    assert_eq!(again, path);
+
+    cache.remove(uuid);
+    assert!(!path.exists());
+}
+
+#[test]
+fn an_unreadable_video_leaves_no_filmstrip_behind() {
+    let toolkit = toolkit();
+    if !toolkit.video.available() {
+        return;
+    }
+    let dir = tempfile::tempdir().expect("tempdir");
+    let cache = ThumbnailCache::with_root(dir.path().join("cache"));
+    let broken = dir.path().join("broken.mp4");
+    std::fs::write(&broken, [0x5a; 4096]).expect("write");
+    let uuid = AssetUuid::new();
+    let source = ThumbnailSource {
+        path: &broken,
+        format: Format::Mp4,
+        orientation: 1,
+        motion_video_length: None,
+        duration_ms: Some(8000),
+    };
+    assert!(cache.filmstrip(uuid, &source, &toolkit.video).is_err());
+    assert!(!cache.filmstrip_path(uuid).exists());
+}
+
+#[test]
+fn video_filmstrip_finds_the_duration_when_the_catalog_has_none() {
+    let toolkit = toolkit();
+    if !toolkit.video.available() {
+        return;
+    }
+    let dir = tempfile::tempdir().expect("tempdir");
+    let cache = ThumbnailCache::with_root(dir.path().to_path_buf());
+    let clip = fixture("clip.mp4");
+    let source = ThumbnailSource {
+        path: &clip,
+        format: Format::Mp4,
+        orientation: 1,
+        motion_video_length: None,
+        duration_ms: None,
+    };
+    cache
+        .filmstrip(AssetUuid::new(), &source, &toolkit.video)
+        .expect("filmstrip");
 }
 
 #[test]

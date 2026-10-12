@@ -29,7 +29,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
 use medianest_catalog::{Db, Writer};
-use medianest_core::{AssetId, AssetUuid, PathBytes};
+use medianest_core::{AssetId, AssetUuid, MediaKind, PathBytes};
 use medianest_media::{MediaToolkit, ThumbnailCache, ThumbnailSource};
 use medianest_vault::{Layout, LibraryLock, Manifest, OpenedLibrary, Vault};
 
@@ -414,6 +414,29 @@ impl Library {
             &self.inner.toolkit.decoder,
             &self.inner.toolkit.video,
         )?)
+    }
+
+    /// The hover filmstrip of a video: [`medianest_media::FILMSTRIP_FRAMES`]
+    /// frames side by side in one image, created on first use.
+    pub fn filmstrip(&self, id: AssetId) -> Result<PathBuf> {
+        let work = self
+            .read(|db| db.thumbnail_work(id))?
+            .ok_or_else(|| Error::Invalid("this video's file is not available".into()))?;
+        if work.format.kind() != MediaKind::Video {
+            return Err(Error::Invalid("only videos have a filmstrip".into()));
+        }
+        let duration = self.read(|db| db.asset(id))?.duration_ms;
+        let source = ThumbnailSource {
+            path: &work.path,
+            format: work.format,
+            orientation: work.orientation,
+            motion_video_length: work.motion_video_offset,
+            duration_ms: duration,
+        };
+        Ok(self
+            .inner
+            .cache
+            .filmstrip(work.uuid, &source, &self.inner.toolkit.video)?)
     }
 
     /// A photo at full resolution with its orientation applied, as RGBA

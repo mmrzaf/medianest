@@ -19,6 +19,13 @@ use crate::ffmpeg::{ToolError, VideoTools};
 pub const THUMB_SHORT_SIDE: u32 = 360;
 /// Longer side of viewer previews, in pixels.
 pub const PREVIEW_LONG_SIDE: u32 = 2048;
+/// Frames in a video's hover filmstrip.
+pub const FILMSTRIP_FRAMES: u32 = 8;
+/// Longer side of each filmstrip frame, in pixels.
+const FILMSTRIP_EDGE: u32 = 640;
+/// Time allowed for a whole filmstrip, so that an unreadable video cannot
+/// occupy a worker for the sum of every frame's own timeout.
+const FILMSTRIP_BUDGET: std::time::Duration = std::time::Duration::from_secs(45);
 
 #[derive(Debug, thiserror::Error)]
 pub enum ThumbnailError {
@@ -85,22 +92,28 @@ impl ThumbnailCache {
         &self.root
     }
 
-    fn sharded(&self, kind: &str, uuid: AssetUuid) -> PathBuf {
+    fn sharded(&self, kind: &str, uuid: AssetUuid, suffix: &str) -> PathBuf {
         let name = uuid.simple();
         self.root
             .join(kind)
             .join(name.get(..2).unwrap_or("00"))
-            .join(format!("{name}.jpg"))
+            .join(format!("{name}{suffix}.jpg"))
     }
 
     #[must_use]
     pub fn thumbnail_path(&self, uuid: AssetUuid) -> PathBuf {
-        self.sharded("thumbnails", uuid)
+        self.sharded("thumbnails", uuid, "")
     }
 
     #[must_use]
     pub fn preview_path(&self, uuid: AssetUuid) -> PathBuf {
-        self.sharded("previews", uuid)
+        self.sharded("previews", uuid, "")
+    }
+
+    /// Filmstrips share the previews folder, so they are counted and trimmed with them.
+    #[must_use]
+    pub fn filmstrip_path(&self, uuid: AssetUuid) -> PathBuf {
+        self.sharded("previews", uuid, ".strip")
     }
 
     /// Creates the grid thumbnail and returns its color and similarity hash.
@@ -131,11 +144,7 @@ impl ThumbnailCache {
     ) -> Result<PathBuf, ThumbnailError> {
         let path = self.preview_path(uuid);
         if path.is_file() {
-            // Mark as recently used for cache trimming.
-            let _ = fs::File::options()
-                .append(true)
-                .open(&path)
-                .and_then(|file| file.set_modified(std::time::SystemTime::now()));
+            mark_used(&path);
             return Ok(path);
         }
         let image = render(source, decoder, tools, Size::LongSide(PREVIEW_LONG_SIDE))?;
@@ -144,10 +153,80 @@ impl ThumbnailCache {
         Ok(path)
     }
 
+    /// Returns a cached filmstrip of a video, creating it if needed: frames
+    /// sampled evenly across the video, side by side in one image of
+    /// [`FILMSTRIP_FRAMES`] equal cells.
+    pub fn filmstrip(
+        &self,
+        uuid: AssetUuid,
+        source: &ThumbnailSource<'_>,
+        tools: &VideoTools,
+    ) -> Result<PathBuf, ThumbnailError> {
+        let path = self.filmstrip_path(uuid);
+        if path.is_file() {
+            mark_used(&path);
+            return Ok(path);
+        }
+        let duration_ms = match source.duration_ms.filter(|&ms| ms > 0) {
+            Some(ms) => ms,
+            None => tools
+                .probe(source.path)?
+                .duration_ms
+                .filter(|&ms| ms > 0)
+                .ok_or(ToolError::Failed("ffprobe", "unknown duration".into()))?,
+        };
+        let deadline = std::time::Instant::now() + FILMSTRIP_BUDGET;
+        let mut cells: Vec<RgbImage> = Vec::new();
+        for index in 0..FILMSTRIP_FRAMES {
+            if std::time::Instant::now() > deadline {
+                return Err(ToolError::Timeout("ffmpeg").into());
+            }
+            #[allow(clippy::cast_precision_loss)]
+            let at = duration_ms as f64 / 1000.0 * (f64::from(index) + 0.5)
+                / f64::from(FILMSTRIP_FRAMES);
+            let frame = tools
+                .frame(source.path, at, FILMSTRIP_EDGE)
+                .and_then(|bytes| {
+                    decode_jpeg(bytes.as_slice(), Size::Full)
+                        .map(DynamicImage::into_rgb8)
+                        .map_err(|error| ToolError::Failed("ffmpeg", error.to_string()))
+                });
+            match (frame, cells.last()) {
+                (Ok(frame), _) => cells.push(frame),
+                // A duration that overstates the video leaves its last frames
+                // unreachable: show the nearest one that exists. A failure
+                // anywhere else means the video is not readable, and a strip
+                // with holes in it would be cached as if it were fine.
+                (Err(_), Some(previous)) if index + 2 >= FILMSTRIP_FRAMES => {
+                    cells.push(previous.clone());
+                }
+                (Err(error), _) => return Err(error.into()),
+            }
+        }
+        let (width, height) = cells[0].dimensions();
+        let mut strip = RgbImage::new(width * FILMSTRIP_FRAMES, height);
+        for (index, cell) in (0..FILMSTRIP_FRAMES).zip(&cells) {
+            let cell = if cell.dimensions() == (width, height) {
+                std::borrow::Cow::Borrowed(cell)
+            } else {
+                std::borrow::Cow::Owned(image::imageops::resize(
+                    cell,
+                    width,
+                    height,
+                    FilterType::Triangle,
+                ))
+            };
+            image::imageops::replace(&mut strip, cell.as_ref(), i64::from(index * width), 0);
+        }
+        write_jpeg(&path, &strip, 80)?;
+        Ok(path)
+    }
+
     /// Deletes every cached image of an asset.
     pub fn remove(&self, uuid: AssetUuid) {
         let _ = fs::remove_file(self.thumbnail_path(uuid));
         let _ = fs::remove_file(self.preview_path(uuid));
+        let _ = fs::remove_file(self.filmstrip_path(uuid));
     }
 
     /// Deletes the whole cache for this library.
@@ -191,6 +270,14 @@ impl ThumbnailCache {
         }
         freed
     }
+}
+
+/// Marks a cached file as recently used, for cache trimming.
+fn mark_used(path: &Path) {
+    let _ = fs::File::options()
+        .append(true)
+        .open(path)
+        .and_then(|file| file.set_modified(std::time::SystemTime::now()));
 }
 
 fn walk(dir: &Path, visit: &mut dyn FnMut(&Path, &fs::Metadata)) {
