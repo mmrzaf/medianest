@@ -536,6 +536,9 @@ impl ImportDialog {
             let weak = self.this.clone();
             let new_count = plan.new_count;
             let already = plan.already_in_library;
+            // Free space is advisory here: if it cannot be measured, do not block.
+            let copy_space = self.ctx.library.space_check(plan, ImportMode::Copy).ok();
+            let move_space = self.ctx.library.space_check(plan, ImportMode::Move).ok();
             move |name: &str| {
                 let Some(this) = weak.upgrade() else { return };
                 let mode = match name {
@@ -569,9 +572,31 @@ impl ImportDialog {
                         true,
                     ),
                 };
+                let space = match mode {
+                    Mode::Copy => copy_space,
+                    Mode::Move => move_space,
+                    Mode::Link => None,
+                };
+                let mut text = text;
+                if let Some(space) = space {
+                    if space.is_short() {
+                        text.push_str("\n\n");
+                        text.push_str(&trf(
+                            "Not enough free space: {} needed, {} available.",
+                            &[&util::bytes(space.required), &util::bytes(space.available)],
+                        ));
+                    } else if space.unremovable_bytes > 0 {
+                        text.push_str("\n\n");
+                        text.push_str(&trf(
+                            "{} of originals are in folders MediaNest cannot remove files from; they will stay, so they need space too.",
+                            &[&util::bytes(space.unremovable_bytes)],
+                        ));
+                    }
+                }
                 explanation.set_label(&text);
                 button.set_label(&label);
                 button.set_visible(enabled);
+                button.set_sensitive(!space.is_some_and(|space| space.is_short()));
             }
         };
         update("copy");

@@ -886,6 +886,14 @@ fn import(library: &Library, args: &ImportArgs, json: bool) -> Outcome {
     if interactive {
         eprint!("\r\x1b[2K");
     }
+    let mode = if args.move_originals {
+        ImportMode::Move
+    } else {
+        ImportMode::Copy
+    };
+    let space = library
+        .space_check(&plan, mode)
+        .map_err(|error| error.to_string())?;
     if args.dry_run || json {
         if json {
             return print_json(&serde_json::json!({
@@ -899,6 +907,8 @@ fn import(library: &Library, args: &ImportArgs, json: bool) -> Outcome {
                 "other_files": plan.other_files,
                 "uncertain_dates": plan.uncertain_dates,
                 "months": plan.months,
+                "space_required": space.required,
+                "space_available": space.available,
             }));
         }
         println!(
@@ -907,6 +917,11 @@ fn import(library: &Library, args: &ImportArgs, json: bool) -> Outcome {
             size_text(plan.new_bytes)
         );
         println!("  {} photos, {} videos", plan.photos, plan.videos);
+        println!(
+            "  needs {} free, {} available",
+            size_text(space.required),
+            size_text(space.available)
+        );
         if plan.already_in_library > 0 {
             println!("  {} already in the library", plan.already_in_library);
         }
@@ -940,19 +955,15 @@ fn import(library: &Library, args: &ImportArgs, json: bool) -> Outcome {
         println!("Nothing new to import.");
         return Ok(());
     }
-    let mode = if args.move_originals {
-        ImportMode::Move
-    } else {
-        ImportMode::Copy
-    };
-    let job = library.import(plan, ImportOptions { mode });
-    follow(library, job, json)?;
-    if args.move_originals {
-        println!(
-            "Approve removing the originals with: medianest-cli review resolve-all pending-removal primary"
-        );
+    if space.is_short() {
+        return Err(format!(
+            "not enough free space: {} needed, {} available",
+            size_text(space.required),
+            size_text(space.available)
+        ));
     }
-    Ok(())
+    let job = library.import(plan, ImportOptions { mode });
+    follow(library, job, json)
 }
 
 fn tags(library: &Library, command: &TagCommand, json: bool) -> Outcome {

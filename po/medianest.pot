@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: medianest 1.0.0\n"
 "Report-Msgid-Bugs-To: https://github.com/mmrzaf/medianest/issues\n"
-"POT-Creation-Date: 2026-10-11 18:05+0000\n"
+"POT-Creation-Date: 2026-10-12 14:58+0330\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -558,51 +558,62 @@ msgstr ""
 msgid "_Choose Something Else"
 msgstr ""
 
-#: crates/medianest-app/src/dialogs/import.rs:550
+#: crates/medianest-app/src/dialogs/import.rs:552
 msgid ""
 "Originals stay where they are. MediaNest keeps its own copy, checked byte "
 "for byte."
 msgstr ""
 
-#: crates/medianest-app/src/dialogs/import.rs:552
+#: crates/medianest-app/src/dialogs/import.rs:554
 msgid "_Import {} Item"
 msgid_plural "_Import {} Items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: crates/medianest-app/src/dialogs/import.rs:557
+#: crates/medianest-app/src/dialogs/import.rs:559
 msgid ""
-"Each original is copied and checked first, then removed right away to free "
-"its space. An original that changed meanwhile is kept and shown in Review."
+"Each original is copied and checked first, then removed right away to "
+"free                              its space. An original that changed "
+"meanwhile is kept and shown in Review."
 msgstr ""
 
-#: crates/medianest-app/src/dialogs/import.rs:560
+#: crates/medianest-app/src/dialogs/import.rs:562
 msgid "_Move {} Item"
 msgid_plural "_Move {} Items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: crates/medianest-app/src/dialogs/import.rs:565
+#: crates/medianest-app/src/dialogs/import.rs:567
 msgid ""
 "Nothing is copied. The folder is watched and its photos appear in "
 "your                              library, but they are only available while "
 "the folder is."
 msgstr ""
 
-#: crates/medianest-app/src/dialogs/import.rs:568
+#: crates/medianest-app/src/dialogs/import.rs:570
 msgid "_Add Folder"
 msgstr ""
 
-#: crates/medianest-app/src/dialogs/import.rs:603
+#: crates/medianest-app/src/dialogs/import.rs:584
+msgid "Not enough free space: {} needed, {} available."
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:590
+msgid ""
+"{} of originals are in folders MediaNest cannot remove files from; they will "
+"stay, so they need space too."
+msgstr ""
+
+#: crates/medianest-app/src/dialogs/import.rs:627
 msgid "Ready to Import"
 msgstr ""
 
-#: crates/medianest-app/src/dialogs/import.rs:638
+#: crates/medianest-app/src/dialogs/import.rs:662
 #: crates/medianest-app/src/pages/folders.rs:36
 msgid "Could not add the folder"
 msgstr ""
 
-#: crates/medianest-app/src/dialogs/import.rs:644
+#: crates/medianest-app/src/dialogs/import.rs:668
 msgid "Import started. You can keep working while it runs."
 msgstr ""
 
@@ -1759,7 +1770,7 @@ msgstr ""
 #: crates/medianest-app/src/pages/review.rs:42
 msgid ""
 "These were copied into the library, but the originals could not be removed "
-"safely. Remove them or keep them."
+"safely.              Remove them or keep them."
 msgstr ""
 
 #: crates/medianest-app/src/pages/review.rs:46
