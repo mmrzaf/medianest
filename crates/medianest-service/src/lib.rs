@@ -367,12 +367,9 @@ impl Library {
     pub fn wait_for_job(&self, id: JobId) -> Option<JobSnapshot> {
         let events = self.subscribe();
         loop {
-            if let Some(snapshot) = self.job(id) {
-                if snapshot.state.is_finished() {
-                    return Some(snapshot);
-                }
-            } else {
-                return None;
+            let snapshot = self.job(id)?;
+            if snapshot.state.is_finished() {
+                return Some(snapshot);
             }
             match events.recv_blocking() {
                 Ok(_) => {}
